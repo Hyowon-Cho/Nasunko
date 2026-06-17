@@ -14,6 +14,7 @@ export function LoungeDetail({ id }: { id: string }) {
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
   const [saving, setSaving] = useState(false);
+  const [liked, setLiked] = useState(false);
 
   useEffect(() => {
     fetch(`/api/posts/${id}`)
@@ -25,6 +26,8 @@ export function LoungeDetail({ id }: { id: string }) {
         setIsReady(true);
       })
       .catch(() => setIsReady(true));
+
+    setLiked(localStorage.getItem(`liked:${id}`) === "1");
   }, [id]);
 
   async function deletePost() {
@@ -33,9 +36,12 @@ export function LoungeDetail({ id }: { id: string }) {
   }
 
   async function likePost() {
+    if (liked) return;
     const res = await fetch(`/api/posts/${id}/like`, { method: "POST" });
     const data = await res.json() as { likes: number };
     setPost((current) => current ? { ...current, likes: data.likes } : current);
+    setLiked(true);
+    localStorage.setItem(`liked:${id}`, "1");
   }
 
   async function savePost() {
@@ -99,7 +105,7 @@ export function LoungeDetail({ id }: { id: string }) {
               <img src={post.image_url} alt="첨부 이미지" className="detail-image" />
             )}
             {post.content.split("\n").map((line, index) => (
-              <p key={`${line}-${index}`}>{line || " "}</p>
+              <p key={`${line}-${index}`}>{line || " "}</p>
             ))}
           </div>
         )}
@@ -113,7 +119,9 @@ export function LoungeDetail({ id }: { id: string }) {
             </>
           ) : (
             <>
-              <button type="button" onClick={likePost}>♡ {post.likes}</button>
+              <button type="button" onClick={likePost} disabled={liked} className={liked ? "liked-button" : ""}>
+                {liked ? "♥" : "♡"} {post.likes}
+              </button>
               <button type="button" onClick={() => setIsEditing(true)}>수정</button>
             </>
           )}

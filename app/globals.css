@@ -1190,6 +1190,12 @@ th {
   color: #ff6f73;
 }
 
+.liked-button {
+  color: #ff6f73;
+  border-color: rgba(255, 75, 85, 0.45);
+  cursor: default;
+}
+
 .lounge-comments h2 {
   margin: 0 0 28px;
   font-size: 17px;
