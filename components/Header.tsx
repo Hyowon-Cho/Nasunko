@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 const navItems = [
   { href: "/nasdaq", label: "나스닥" },
   { href: "/big-tech", label: "미국 빅테크" },
-  { href: "/semiconductor", label: "미국 반도체" },
   { href: "/indicators", label: "경제지표" },
   { href: "/news", label: "실시간 뉴스룸" },
   { href: "/lounge", label: "라운지" }
