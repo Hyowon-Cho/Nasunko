@@ -42,21 +42,24 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { title, content } = await request.json() as { title?: string; content?: string };
+  const { title, content, image_url } = await request.json() as { title?: string; content?: string; image_url?: string | null };
 
-  if (!title?.trim() || !content?.trim()) {
-    return NextResponse.json({ error: "제목과 내용을 입력하세요" }, { status: 400 });
+  if (!title?.trim()) {
+    return NextResponse.json({ error: "제목을 입력하세요" }, { status: 400 });
+  }
+  if (!content?.trim() && !image_url) {
+    return NextResponse.json({ error: "내용 또는 이미지를 입력하세요" }, { status: 400 });
   }
 
   try {
     const { rows } = await query(
       `
     UPDATE posts
-    SET title = $1, content = $2
-    WHERE id = $3
-    RETURNING id, title, author, date, content, views, likes
+    SET title = $1, content = $2, image_url = $3
+    WHERE id = $4
+    RETURNING id, title, author, date, content, image_url, views, likes
   `,
-      [title.trim(), content.trim(), id],
+      [title.trim(), content?.trim() ?? "", image_url ?? null, id],
     );
 
     if (rows.length === 0) {

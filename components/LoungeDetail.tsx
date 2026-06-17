@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CommentBox } from "@/components/CommentBox";
 import type { LoungePost } from "@/lib/lounge";
 
@@ -15,6 +15,10 @@ export function LoungeDetail({ id }: { id: string }) {
   const [editContent, setEditContent] = useState("");
   const [saving, setSaving] = useState(false);
   const [liked, setLiked] = useState(false);
+  const [editImageUrl, setEditImageUrl] = useState<string | null>(null);
+  const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetch(`/api/posts/${id}`)
@@ -23,6 +27,8 @@ export function LoungeDetail({ id }: { id: string }) {
         setPost(data);
         setEditTitle(data?.title ?? "");
         setEditContent(data?.content ?? "");
+        setEditImageUrl(data?.image_url ?? null);
+        setEditImagePreview(data?.image_url ?? null);
         setIsReady(true);
       })
       .catch(() => setIsReady(true));
@@ -44,14 +50,39 @@ export function LoungeDetail({ id }: { id: string }) {
     localStorage.setItem(`liked:${id}`, "1");
   }
 
+  async function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setEditImagePreview(URL.createObjectURL(file));
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: form });
+      const data = await res.json() as { url?: string };
+      if (res.ok) setEditImageUrl(data.url ?? null);
+      else { setEditImagePreview(editImageUrl); }
+    } catch {
+      setEditImagePreview(editImageUrl);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function removeEditImage() {
+    setEditImageUrl(null);
+    setEditImagePreview(null);
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
   async function savePost() {
-    if (!editTitle.trim() || !editContent.trim()) return;
+    if (!editTitle.trim() || (!editContent.trim() && !editImageUrl)) return;
 
     setSaving(true);
     const res = await fetch(`/api/posts/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: editTitle.trim(), content: editContent.trim() }),
+      body: JSON.stringify({ title: editTitle.trim(), content: editContent.trim(), image_url: editImageUrl }),
     });
     const data = await res.json() as LoungePost;
     setSaving(false);
@@ -98,6 +129,20 @@ export function LoungeDetail({ id }: { id: string }) {
               <span>내용</span>
               <textarea value={editContent} onChange={(event) => setEditContent(event.target.value)} rows={8} />
             </label>
+            <div className="image-upload-area">
+              <span>사진</span>
+              {editImagePreview ? (
+                <div className="image-preview-wrap">
+                  <img src={editImagePreview} alt="미리보기" className="image-preview" />
+                  <button type="button" className="image-remove-btn" onClick={removeEditImage}>✕ 제거</button>
+                </div>
+              ) : (
+                <button type="button" className="image-upload-btn" onClick={() => fileRef.current?.click()} disabled={uploading}>
+                  {uploading ? "업로드 중..." : "📎 사진 첨부"}
+                </button>
+              )}
+              <input ref={fileRef} type="file" accept="image/*" className="hidden-file-input" onChange={onFileChange} />
+            </div>
           </div>
         ) : (
           <div className="detail-body">
