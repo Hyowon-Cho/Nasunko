@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navItems = [
   { href: "/nasdaq", label: "나스닥" },
@@ -10,22 +13,31 @@ const navItems = [
 ];
 
 export function Header() {
+  const pathname = usePathname();
+
   return (
     <header className="header">
       <div className="header-inner">
         <Link className="brand" href="/nasdaq" aria-label="나선코 홈">
-          <span className="brand-name">나선코</span>
+          <span className="brand-ko">나선</span><span className="brand-hi">코</span>
+          <span className="brand-tag">나스닥</span>
         </Link>
         <nav className="nav" aria-label="주요 메뉴">
           {navItems.map((item) => (
-            <Link key={item.href} href={item.href}>
+            <Link
+              key={item.href}
+              href={item.href}
+              className={pathname?.startsWith(item.href) ? "active" : ""}
+            >
               {item.label}
             </Link>
           ))}
         </nav>
         <div className="header-right">
-          <span className="badge live">● Live</span>
-          <span className="theme-dot" aria-hidden="true">☼</span>
+          <span className="live-pill">
+            <span className="live-dot" />
+            Live
+          </span>
         </div>
       </div>
     </header>

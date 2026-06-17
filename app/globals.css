@@ -1,20 +1,20 @@
 :root {
   color-scheme: dark;
-  --bg: #090b12;
-  --panel: #151821;
-  --panel-2: #10131b;
-  --panel-3: #1b1f2b;
-  --line: #2a3040;
-  --muted: #8c93a3;
-  --text: #eceff6;
-  --soft: #c0c6d4;
+  --bg: #0a0c16;
+  --panel: #111422;
+  --panel-2: #0d1019;
+  --panel-3: #181c2a;
+  --line: #1d2234;
+  --muted: #8893a8;
+  --text: #e8ecf5;
+  --soft: #b8c0d4;
   --accent: #2e7bff;
   --accent-2: #1a55c9;
-  --up: #ff4b55;
+  --up: #ff3f4a;
   --down: #2487ff;
   --flat: #00c2a8;
   --warning: #ffad33;
-  --radius: 8px;
+  --radius: 9px;
 }
 
 * {
@@ -45,9 +45,7 @@ input {
 
 .site-shell {
   min-height: 100vh;
-  background:
-    linear-gradient(180deg, rgba(21, 25, 36, 0.96), rgba(9, 11, 18, 0.98) 220px),
-    var(--bg);
+  background: var(--bg);
 }
 
 .main {
@@ -78,10 +76,9 @@ input {
 }
 
 .card {
-  background: linear-gradient(180deg, rgba(29, 33, 45, 0.92), rgba(19, 22, 31, 0.96));
+  background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
 }
 
 .card-inner {
@@ -100,8 +97,9 @@ input {
 
 .page-title {
   margin: 0;
-  font-size: 30px;
+  font-size: 32px;
   line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
 .page-subtitle {
@@ -115,13 +113,14 @@ input {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 24px;
+  min-height: 22px;
   padding: 0 9px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--soft);
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -157,8 +156,8 @@ table {
 
 th,
 td {
-  padding: 12px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 13px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   text-align: right;
   white-space: nowrap;
 }
@@ -204,9 +203,9 @@ th {
   position: fixed;
   inset: 0 0 auto;
   z-index: 20;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(11, 13, 21, 0.92);
-  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(10, 12, 22, 0.96);
+  backdrop-filter: blur(20px);
 }
 
 .header-inner {
@@ -235,8 +234,30 @@ th {
   font-weight: 800;
 }
 
-.brand-name {
-  font-size: 19px;
+.brand-ko {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.brand-hi {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.brand-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 17px;
+  padding: 0 6px;
+  border: 1px solid rgba(255, 173, 51, 0.4);
+  border-radius: 4px;
+  color: var(--warning);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-left: 7px;
 }
 
 .nav {
@@ -248,16 +269,24 @@ th {
 .nav a,
 .filter-row a {
   flex: 0 0 auto;
-  padding: 10px 13px;
-  border-radius: 7px;
+  padding: 7px 14px;
+  border-radius: 20px;
   color: var(--muted);
   font-size: 14px;
+  font-weight: 500;
+  transition: background 0.14s ease, color 0.14s ease;
 }
 
-.nav a:hover,
+.nav a.active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.nav a:hover:not(.active),
 .filter-row a:hover,
 .filter-row a.active {
-  background: rgba(46, 123, 255, 0.18);
+  background: rgba(46, 123, 255, 0.14);
   color: var(--text);
 }
 
@@ -275,6 +304,34 @@ th {
   color: var(--soft);
 }
 
+.live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid rgba(80, 227, 129, 0.2);
+  border-radius: 20px;
+  color: #50e381;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #50e381;
+  box-shadow: 0 0 6px rgba(80, 227, 129, 0.55);
+  animation: blink 2.4s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
 .ticker {
   position: fixed;
   top: 58px;
@@ -282,8 +339,8 @@ th {
   right: 0;
   z-index: 19;
   overflow: hidden;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: #0c0f17;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--panel-2);
 }
 
 .ticker-track {
@@ -312,12 +369,12 @@ th {
 }
 
 .hero {
-  padding: 20px 0 6px;
+  padding: 28px 0 10px;
 }
 
 .quote-hero {
-  padding: 22px 24px 16px;
-  margin-top: 22px;
+  padding: 26px 26px 20px;
+  margin-top: 20px;
 }
 
 .quote-head,
@@ -339,14 +396,17 @@ th {
 }
 
 .quote-price {
-  margin: 10px 0 0;
-  font-size: 34px;
+  margin: 14px 0 0;
+  font-size: 44px;
   font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .quote-price span {
-  margin-left: 8px;
-  font-size: 16px;
+  margin-left: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 .quote-badges {
@@ -366,9 +426,10 @@ th {
 .indicator-stats div,
 .metric {
   min-width: 0;
-  padding: 12px;
+  padding: 13px;
   border-radius: 7px;
-  background: rgba(8, 10, 17, 0.45);
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .quote-stats span,
@@ -402,10 +463,10 @@ th {
 
 .tradingview-shell {
   position: relative;
-  height: 520px;
-  margin-top: 12px;
+  height: 560px;
+  margin-top: 14px;
   overflow: hidden;
-  border-radius: 7px;
+  border-radius: 8px;
   background: var(--panel-2);
 }
 
@@ -450,19 +511,21 @@ th {
   align-items: center;
   gap: 14px;
   min-height: 68px;
-  padding: 12px 14px;
+  padding: 13px 16px;
   border: 1px solid var(--line);
-  border-radius: 7px;
-  background: rgba(255, 255, 255, 0.025);
-  transition: border-color 0.16s ease, background 0.16s ease;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.018);
+  transition: border-color 0.14s ease, background 0.14s ease;
 }
 
 .mover-row:hover {
-  border-color: rgba(46, 123, 255, 0.5);
-  background: rgba(46, 123, 255, 0.08);
+  border-color: rgba(46, 123, 255, 0.32);
+  background: rgba(46, 123, 255, 0.05);
 }
 
 .mover-row div {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
 }
 
@@ -488,6 +551,7 @@ th {
 }
 
 .mover-row div:last-child {
+  align-items: flex-end;
   text-align: right;
 }
 
@@ -1144,12 +1208,13 @@ th {
   }
 
   .quote-price {
-    font-size: 28px;
+    font-size: 32px;
   }
 
   .quote-price span {
     display: block;
     margin: 8px 0 0;
+    font-size: 15px;
   }
 
   .quote-stats,
@@ -1158,7 +1223,7 @@ th {
   }
 
   .tradingview-shell {
-    height: 420px;
+    height: 440px;
   }
 
   .market-card {
