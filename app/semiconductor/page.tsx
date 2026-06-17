@@ -5,7 +5,7 @@ import { getMarketQuotes } from "@/lib/markets";
 import { mockNews } from "@/lib/news";
 
 export const metadata: Metadata = {
-  title: "나선코 - 미국 반도체 실시간 시세",
+  title: "나선코 미국 반도체 실시간 시세",
   description: "SOXX, SMH, SOXL, SOXS, NVDA, AMD, AVGO 등 미국 반도체 관련 종목과 뉴스를 확인하세요."
 };
 
