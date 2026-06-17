@@ -9,13 +9,12 @@ export type LoungePost = {
   content: string;
 };
 
-export const loungePosts: LoungePost[] = [];
-
-export function getLoungePost(id: string) {
-  return loungePosts.find((post) => post.id === id);
-}
-
-export const LOUNGE_STORAGE_KEY = "nasunko:lounge-posts";
+export type LoungeComment = {
+  id: number;
+  nickname: string;
+  body: string;
+  created_at: string;
+};
 
 export function createPostId() {
   return `post-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;

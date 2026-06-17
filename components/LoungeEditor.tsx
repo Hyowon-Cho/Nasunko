@@ -2,58 +2,65 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createPostId, formatToday, LOUNGE_STORAGE_KEY, type LoungePost } from "@/lib/lounge";
 
 export function LoungeEditor() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [content, setContent] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const nextTitle = title.trim();
-    const nextAuthor = author.trim() || "익명";
-    const nextContent = content.trim();
+    if (!title.trim() || !content.trim()) return;
 
-    if (!nextTitle || !nextContent) {
-      return;
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: title.trim(), author: author.trim(), content: content.trim() })
+      });
+      const data = await res.json() as { id?: string; error?: string };
+
+      if (!res.ok) {
+        setError(data.error ?? "글 등록에 실패했습니다.");
+        return;
+      }
+
+      if (data.id) {
+        router.push(`/lounge/${data.id}`);
+      }
+    } catch {
+      setError("글 등록에 실패했습니다. DB 연결 상태를 확인하세요.");
+    } finally {
+      setLoading(false);
     }
-
-    const stored = window.localStorage.getItem(LOUNGE_STORAGE_KEY);
-    const currentPosts = stored ? JSON.parse(stored) as LoungePost[] : [];
-    const post: LoungePost = {
-      id: createPostId(),
-      title: nextTitle,
-      author: nextAuthor,
-      date: formatToday(),
-      views: 0,
-      likes: 0,
-      comments: 0,
-      content: nextContent
-    };
-
-    window.localStorage.setItem(LOUNGE_STORAGE_KEY, JSON.stringify([post, ...currentPosts]));
-    router.push(`/lounge/${post.id}`);
   }
 
   return (
     <form className="lounge-editor card" onSubmit={onSubmit}>
       <label>
         <span>제목</span>
-        <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="제목을 입력하세요" />
+        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목을 입력하세요" />
       </label>
       <label>
         <span>작성자</span>
-        <input value={author} onChange={(event) => setAuthor(event.target.value)} placeholder="닉네임" />
+        <input value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="닉네임 (없으면 익명)" />
       </label>
       <label>
         <span>내용</span>
-        <textarea value={content} onChange={(event) => setContent(event.target.value)} placeholder="내용을 입력하세요" rows={10} />
+        <textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="내용을 입력하세요" rows={10} />
       </label>
+      {error ? <p className="form-error">{error}</p> : null}
       <div className="editor-actions">
         <button className="button" type="button" onClick={() => router.push("/lounge")}>취소</button>
-        <button className="button write-button" type="submit">등록</button>
+        <button className="button write-button" type="submit" disabled={loading}>
+          {loading ? "등록 중..." : "등록"}
+        </button>
       </div>
     </form>
   );

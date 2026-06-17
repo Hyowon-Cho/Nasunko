@@ -19,7 +19,7 @@ export function Header() {
     <header className="header">
       <div className="header-inner">
         <Link className="brand" href="/nasdaq" aria-label="나선코 홈">
-          <span className="brand-ko">나선</span><span className="brand-hi">코</span>
+          <span className="brand-ko">나선코</span><span className="brand-hi"></span>
           <span className="brand-tag">나스닥</span>
         </Link>
         <nav className="nav" aria-label="주요 메뉴">

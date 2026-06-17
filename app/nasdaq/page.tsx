@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { randomInt } from "crypto";
-import { QuoteTable } from "@/components/QuoteTable";
 import { TickerTape } from "@/components/TickerTape";
 import { TradingViewChart } from "@/components/TradingViewChart";
 import { TradingViewRelatedMarketCard } from "@/components/TradingViewRelatedMarketCard";
@@ -45,7 +44,7 @@ export default async function NasdaqPage() {
         <section className="card card-inner">
           <div className="section-head">
             <h2>오늘의 움직임</h2>
-            <span className={liveCount > 0 ? "badge live" : "badge ad"}>연결됨 {liveCount}/{nasdaqStocks.length}</span>
+            <span className={liveCount > 0 ? "badge live" : "badge ad"}>Live {liveCount}/{nasdaqStocks.length}</span>
           </div>
           <div className="mover-list">
             {movers.map((quote) => {
@@ -66,14 +65,6 @@ export default async function NasdaqPage() {
           </div>
         </section>
       </div>
-
-      <section className="section">
-        <div className="section-head section-title-row">
-          <h2>관심 종목 전체</h2>
-          <span className="badge">FMP</span>
-        </div>
-        <QuoteTable quotes={nasdaqStocks} />
-      </section>
 
       <section className="section">
         <div className="section-head section-title-row">

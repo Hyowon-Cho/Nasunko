@@ -2,26 +2,25 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { LOUNGE_STORAGE_KEY, type LoungePost } from "@/lib/lounge";
+import type { LoungePost } from "@/lib/lounge";
 
 export function LoungeList() {
   const [posts, setPosts] = useState<LoungePost[]>([]);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    const timeout = window.setTimeout(() => {
-      const stored = window.localStorage.getItem(LOUNGE_STORAGE_KEY);
-      setPosts(stored ? JSON.parse(stored) as LoungePost[] : []);
-      setIsReady(true);
-    }, 0);
-
-    return () => window.clearTimeout(timeout);
+    fetch("/api/posts")
+      .then((res) => res.json())
+      .then((data: LoungePost[]) => {
+        setPosts(data);
+        setIsReady(true);
+      })
+      .catch(() => setIsReady(true));
   }, []);
 
-  function deletePost(postId: string) {
-    const nextPosts = posts.filter((post) => post.id !== postId);
-    setPosts(nextPosts);
-    window.localStorage.setItem(LOUNGE_STORAGE_KEY, JSON.stringify(nextPosts));
+  async function deletePost(postId: string) {
+    await fetch(`/api/posts/${postId}`, { method: "DELETE" });
+    setPosts((current) => current.filter((post) => post.id !== postId));
   }
 
   return (
@@ -41,7 +40,7 @@ export function LoungeList() {
             </div>
             <div className="post-actions">
               <span>♡ {post.likes}</span>
-              <span>♡ {post.comments}</span>
+              <span>💬 {post.comments}</span>
               <span>⊙ {post.views}</span>
               <button
                 className="text-danger-button"
