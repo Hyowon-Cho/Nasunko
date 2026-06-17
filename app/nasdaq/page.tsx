@@ -32,7 +32,7 @@ export default async function NasdaqPage() {
       <TickerTape quotes={tickerQuotes} />
       <section className="hero">
         <h1 className="page-title">나스닥 실시간 시세</h1>
-        <p className="page-subtitle">나스닥 대형 성장주의 차트, 등락, 거래량을 한 화면에서 빠르게 확인합니다.</p>
+        <p className="page-subtitle">나스닥 대형 성장주의 차트, 등락, 거래량을 한 화면에서 빠르게 확인해요</p>
       </section>
 
       <div className="section">
@@ -42,6 +42,7 @@ export default async function NasdaqPage() {
       <section className="section">
         <div className="section-head section-title-row">
           <h2>연관 시장</h2>
+          <p className="page-subtitle">금,은,유가 등 시세를 알 수 있어요</p>
           <span className="badge">TradingView</span>
         </div>
         <div className="related-tv-grid">
