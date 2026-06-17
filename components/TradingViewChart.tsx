@@ -6,7 +6,7 @@ type TradingViewChartProps = {
   symbol?: string;
 };
 
-export function TradingViewChart({ symbol = "NASDAQ:IXIC" }: TradingViewChartProps) {
+export function TradingViewChart({ symbol = "NASDAQ:NVDA" }: TradingViewChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loaded, setLoaded] = useState(false);
 
@@ -45,10 +45,10 @@ export function TradingViewChart({ symbol = "NASDAQ:IXIC" }: TradingViewChartPro
   return (
     <section className="card chart-card">
       <div className="section-head">
-        <h2>나스닥 종합주가지수 차트</h2>
+        <h2>나스닥 대표주 차트</h2>
         <span className="badge">{symbol}</span>
       </div>
-      <p className="chart-note">기본값은 나스닥 종합주가지수입니다. 필요하면 나스닥100, ETF, 개별 빅테크 심볼로 바꿔 비교할 수 있습니다.</p>
+      <p className="chart-note">TradingView API로 원하는 주식 차트를 볼 수 있어요.</p>
       <div className="tradingview-shell">
         {!loaded && (
           <div className="chart-fallback">

@@ -40,12 +40,7 @@ export const tickerQuotes: MarketQuote[] = [
   { symbol: "AMZN", yahooSymbol: "AMZN", name: "AMZN", price: 187.64, change: 1.88, changePercent: 1.01, sparkline: [5, 5, 6, 7, 8, 7, 9, 10] },
   { symbol: "META", yahooSymbol: "META", name: "META", price: 693.17, change: 7.72, changePercent: 1.13, sparkline: [6, 7, 8, 8, 9, 10, 11, 11] },
   { symbol: "GOOGL", yahooSymbol: "GOOGL", name: "GOOGL", price: 175.8, change: 0.34, changePercent: 0.19, sparkline: [6, 5, 6, 6, 7, 7, 7, 8] },
-  { symbol: "TSLA", yahooSymbol: "TSLA", name: "TSLA", price: 184.93, change: -3.16, changePercent: -1.68, sparkline: [12, 11, 9, 8, 8, 7, 6, 5] },
-  { symbol: "NFLX", yahooSymbol: "NFLX", name: "NFLX", price: 1224.51, change: 18.3, changePercent: 1.52, sparkline: [4, 6, 5, 7, 9, 9, 10, 12] },
-  { symbol: "AMD", yahooSymbol: "AMD", name: "AMD", price: 126.55, change: 2.62, changePercent: 2.11, sparkline: [5, 6, 7, 7, 9, 10, 12, 13] },
-  { symbol: "ADBE", yahooSymbol: "ADBE", name: "ADBE", price: 207.32, change: 0.0, changePercent: 0.0, sparkline: [5, 6, 5, 7, 8, 8, 9, 9] },
-  { symbol: "INTC", yahooSymbol: "INTC", name: "INTC", price: 117.05, change: 0.0, changePercent: 0.0, sparkline: [4, 5, 5, 6, 6, 7, 6, 8] },
-  { symbol: "SPY", yahooSymbol: "SPY", name: "SPY", price: 750.33, change: -4.5, changePercent: -0.6, sparkline: [9, 8, 7, 7, 6, 6, 5, 5] }
+  { symbol: "TSLA", yahooSymbol: "TSLA", name: "TSLA", price: 184.93, change: -3.16, changePercent: -1.68, sparkline: [12, 11, 9, 8, 8, 7, 6, 5] }
 ];
 
 export const nasdaqComposite: MarketQuote = {
@@ -65,7 +60,7 @@ export const nasdaqComposite: MarketQuote = {
 };
 
 export const relatedMarkets: MarketQuote[] = [
-  ...tickerQuotes.slice(0, 10)
+  ...tickerQuotes
 ];
 
 export const bigTechQuotes: MarketQuote[] = [
@@ -258,4 +253,9 @@ export async function getRelatedMarkets() {
 
 export async function getMarketQuotes(kind: "big-tech" | "semiconductor") {
   return getLiveQuotes(kind === "big-tech" ? bigTechQuotes : semiconductorQuotes);
+}
+
+export async function getMagnificentSevenQuotes() {
+  const symbols = new Set(["NVDA", "MSFT", "AAPL", "AMZN", "META", "GOOGL", "TSLA"]);
+  return getLiveQuotes(bigTechQuotes.filter((quote) => symbols.has(quote.symbol)));
 }

@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { MarketCard } from "@/components/MarketCard";
-import { MoverGrid } from "@/components/MoverGrid";
+import { randomInt } from "crypto";
 import { QuoteTable } from "@/components/QuoteTable";
 import { TickerTape } from "@/components/TickerTape";
 import { TradingViewChart } from "@/components/TradingViewChart";
-import { getMarketQuotes, getRelatedMarkets, getTickerQuotes } from "@/lib/markets";
+import { TradingViewRelatedMarketCard } from "@/components/TradingViewRelatedMarketCard";
+import { directionOf, formatNumber, getMarketQuotes, getTickerQuotes } from "@/lib/markets";
 
 export const metadata: Metadata = {
   title: "나선코 - 나스닥 실시간 시세",
@@ -13,45 +13,78 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
+const relatedMarkets = [
+  { symbol: "FX_IDC:USDKRW", title: "USD / KRW", subtitle: "달러·원 환율" },
+  { symbol: "TVC:GOLD", title: "GOLD", subtitle: "금" },
+  { symbol: "TVC:SILVER", title: "SILVER", subtitle: "은" },
+  { symbol: "TVC:USOIL", title: "WTI 유가", subtitle: "서부 텍사스 원유" }
+];
+
 export default async function NasdaqPage() {
-  const [tickerQuotes, relatedMarkets, nasdaqStocks] = await Promise.all([
+  const [tickerQuotes, nasdaqStocks] = await Promise.all([
     getTickerQuotes(),
-    getRelatedMarkets(),
     getMarketQuotes("big-tech")
   ]);
   const liveCount = nasdaqStocks.filter((quote) => quote.source === "live").length;
+  const randomStock = nasdaqStocks[randomInt(Math.max(nasdaqStocks.length, 1))] ?? nasdaqStocks[0];
+  const chartSymbol = `NASDAQ:${randomStock?.symbol ?? "NVDA"}`;
+  const movers = [...nasdaqStocks]
+    .sort((a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent))
+    .slice(0, 5);
 
   return (
     <main className="main">
       <TickerTape quotes={tickerQuotes} />
       <section className="hero">
         <h1 className="page-title">나스닥 실시간 시세</h1>
-        <p className="page-subtitle">나스닥 종합 실시간 시세를 한 화면에서 확인할 수 있어요.</p>
+        <p className="page-subtitle">나스닥 대형 성장주의 차트, 등락, 거래량을 한 화면에서 빠르게 확인합니다.</p>
       </section>
 
       <div className="grid two section">
-        <TradingViewChart />
+        <TradingViewChart symbol={chartSymbol} />
         <section className="card card-inner">
           <div className="section-head">
-            <h2>나스닥 대표주</h2>
+            <h2>오늘의 움직임</h2>
             <span className={liveCount > 0 ? "badge live" : "badge ad"}>연결됨 {liveCount}/{nasdaqStocks.length}</span>
           </div>
-          <div className="side-market-list">
-            {nasdaqStocks.slice(0, 5).map((quote) => (
-              <MarketCard key={quote.symbol} quote={quote} />
-            ))}
+          <div className="mover-list">
+            {movers.map((quote) => {
+              const direction = directionOf(quote.change);
+              return (
+                <a className="mover-row" href={`https://kr.tradingview.com/symbols/NASDAQ-${quote.symbol}/`} target="_blank" rel="noreferrer" key={quote.symbol}>
+                  <div>
+                    <span>{quote.symbol}</span>
+                    <strong>{quote.name}</strong>
+                  </div>
+                  <div>
+                    <strong>{formatNumber(quote.price, 2)}</strong>
+                    <em className={direction}>{quote.change > 0 ? "+" : ""}{formatNumber(quote.change, 2)} ({quote.changePercent > 0 ? "+" : ""}{formatNumber(quote.changePercent, 2)}%)</em>
+                  </div>
+                </a>
+              );
+            })}
           </div>
         </section>
       </div>
 
-      <section className="grid four section">
-        {relatedMarkets.map((quote) => (
-          <MarketCard key={quote.symbol} quote={quote} />
-        ))}
+      <section className="section">
+        <div className="section-head section-title-row">
+          <h2>관심 종목 전체</h2>
+          <span className="badge">FMP</span>
+        </div>
+        <QuoteTable quotes={nasdaqStocks} />
       </section>
 
       <section className="section">
-        <QuoteTable quotes={nasdaqStocks} />
+        <div className="section-head section-title-row">
+          <h2>연관 시장</h2>
+          <span className="badge">TradingView</span>
+        </div>
+        <div className="related-tv-grid">
+          {relatedMarkets.map((market) => (
+            <TradingViewRelatedMarketCard key={market.symbol} symbol={market.symbol} title={market.title} subtitle={market.subtitle} />
+          ))}
+        </div>
       </section>
     </main>
   );
