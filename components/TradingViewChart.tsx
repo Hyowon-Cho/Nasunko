@@ -47,7 +47,7 @@ export function TradingViewChart({ symbol = "NASDAQ:NVDA" }: TradingViewChartPro
       <div className="section-head">
         <h2>너만의 나스닥 차트</h2>
       </div>
-      <p className="chart-note">너만의 나스닥 차트를 확인해보세요</p>
+      <p className="chart-note">너만의 나스닥 차트를 확인 할 수 있어요</p>
       <div className="tradingview-shell">
         {!loaded && (
           <div className="chart-fallback">
