@@ -11,13 +11,9 @@ function createPool() {
     throw new Error("DATABASE_URL is not set. Add your AWS PostgreSQL connection string to .env.local.");
   }
 
-  const needsSsl =
-    process.env.POSTGRES_SSL === "true" ||
-    connectionString.includes("sslmode=require");
-
   return new Pool({
     connectionString,
-    ssl: needsSsl ? { rejectUnauthorized: false } : undefined,
+    ssl: { rejectUnauthorized: false },
   });
 }
 
