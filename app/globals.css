@@ -237,7 +237,7 @@ th {
 .brand-ko {
   font-size: 18px;
   font-weight: 500;
-  color: var(--muted);
+  color: var(--text);
 }
 
 .brand-hi {
