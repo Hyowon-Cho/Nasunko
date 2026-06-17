@@ -11,6 +11,7 @@ export async function GET() {
       author TEXT NOT NULL,
       date TEXT NOT NULL,
       content TEXT NOT NULL,
+      image_url TEXT,
       views INTEGER DEFAULT 0,
       likes INTEGER DEFAULT 0,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

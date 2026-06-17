@@ -1020,6 +1020,67 @@ th {
   gap: 8px;
 }
 
+.image-upload-area {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.image-upload-area > span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.hidden-file-input {
+  display: none;
+}
+
+.image-upload-btn {
+  align-self: flex-start;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.image-upload-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.image-preview-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: var(--radius);
+  object-fit: contain;
+}
+
+.image-remove-btn {
+  padding: 4px 10px;
+  background: rgba(255, 111, 115, 0.15);
+  border: 1px solid rgba(255, 111, 115, 0.3);
+  border-radius: var(--radius);
+  color: #ff6f73;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.detail-image {
+  max-width: 100%;
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}
+
 .form-error {
   margin: 0;
   color: #ff6f73;

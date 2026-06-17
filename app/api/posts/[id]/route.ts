@@ -10,7 +10,7 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
 
     const { rows } = await query(
       `
-    SELECT p.id, p.title, p.author, p.date, p.content, p.views, p.likes,
+    SELECT p.id, p.title, p.author, p.date, p.content, p.image_url, p.views, p.likes,
            COUNT(c.id)::int AS comments
     FROM posts p
     LEFT JOIN comments c ON c.post_id = p.id

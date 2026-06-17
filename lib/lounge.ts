@@ -7,6 +7,7 @@ export type LoungePost = {
   likes: number;
   comments: number;
   content: string;
+  image_url?: string;
 };
 
 export type LoungeComment = {

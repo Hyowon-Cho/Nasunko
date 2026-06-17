@@ -95,6 +95,9 @@ export function LoungeDetail({ id }: { id: string }) {
           </div>
         ) : (
           <div className="detail-body">
+            {post.image_url && (
+              <img src={post.image_url} alt="첨부 이미지" className="detail-image" />
+            )}
             {post.content.split("\n").map((line, index) => (
               <p key={`${line}-${index}`}>{line || " "}</p>
             ))}
