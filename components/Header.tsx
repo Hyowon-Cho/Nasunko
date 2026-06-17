@@ -15,7 +15,6 @@ export function Header() {
       <div className="header-inner">
         <Link className="brand" href="/futures" aria-label="나선코 홈">
           <span className="brand-name">나선코</span>
-          <span className="badge ad">광고</span>
         </Link>
         <nav className="nav" aria-label="주요 메뉴">
           {navItems.map((item) => (

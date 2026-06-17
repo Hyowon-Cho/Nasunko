@@ -3,6 +3,7 @@ export type Direction = "up" | "down" | "flat";
 export type MarketQuote = {
   symbol: string;
   yahooSymbol?: string;
+  fmpSymbol?: string;
   name: string;
   price: number;
   change: number;
@@ -115,6 +116,14 @@ type YahooQuote = {
   regularMarketTime?: number;
 };
 
+type FmpQuote = {
+  symbol: string;
+  price?: number;
+  change?: number;
+  changesPercentage?: number;
+  volume?: number;
+};
+
 const compactNumber = (value?: number) => {
   if (typeof value !== "number") {
     return undefined;
@@ -180,19 +189,76 @@ async function fetchYahooQuotes(fallbackQuotes: MarketQuote[]) {
   }
 }
 
+async function fetchFmpQuotes(fallbackQuotes: MarketQuote[]) {
+  if (!process.env.FMP_API_KEY) {
+    return null;
+  }
+
+  const symbols = fallbackQuotes.map((quote) => quote.fmpSymbol ?? quote.yahooSymbol ?? quote.symbol);
+  const encodedSymbols = symbols.map((symbol) => encodeURIComponent(symbol)).join(",");
+  const url = `https://financialmodelingprep.com/stable/quote-short?symbol=${encodedSymbols}&apikey=${process.env.FMP_API_KEY}`;
+
+  try {
+    const response = await fetch(url, { next: { revalidate: 30 } });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json() as FmpQuote[] | { Error?: string };
+
+    if (!Array.isArray(data)) {
+      return null;
+    }
+
+    const results = new Map(data.map((quote) => [quote.symbol, quote]));
+
+    return fallbackQuotes.map((fallback) => {
+      const fmpSymbol = fallback.fmpSymbol ?? fallback.yahooSymbol ?? fallback.symbol;
+      const live = results.get(fmpSymbol);
+
+      if (!live || typeof live.price !== "number") {
+        return { ...fallback, source: "fallback" as const };
+      }
+
+      return {
+        ...fallback,
+        price: live.price,
+        change: live.change ?? fallback.change,
+        changePercent: live.changesPercentage ?? fallback.changePercent,
+        volume: compactNumber(live.volume) ?? fallback.volume,
+        time: quoteTime(Math.floor(Date.now() / 1000)),
+        source: "live" as const
+      };
+    });
+  } catch {
+    return null;
+  }
+}
+
+async function getLiveQuotes(fallbackQuotes: MarketQuote[]) {
+  const fmpQuotes = await fetchFmpQuotes(fallbackQuotes);
+
+  if (fmpQuotes?.some((quote) => quote.source === "live")) {
+    return fmpQuotes;
+  }
+
+  return fetchYahooQuotes(fallbackQuotes);
+}
+
 export async function getTickerQuotes() {
-  return fetchYahooQuotes(tickerQuotes);
+  return getLiveQuotes(tickerQuotes);
 }
 
 export async function getNasdaqComposite() {
-  const [quote] = await fetchYahooQuotes([nasdaqComposite]);
+  const [quote] = await getLiveQuotes([nasdaqComposite]);
   return quote;
 }
 
 export async function getRelatedMarkets() {
-  return fetchYahooQuotes(relatedMarkets);
+  return getLiveQuotes(relatedMarkets);
 }
 
 export async function getMarketQuotes(kind: "big-tech" | "semiconductor") {
-  return fetchYahooQuotes(kind === "big-tech" ? bigTechQuotes : semiconductorQuotes);
+  return getLiveQuotes(kind === "big-tech" ? bigTechQuotes : semiconductorQuotes);
 }

@@ -37,7 +37,7 @@ export default async function FuturesPage() {
           </div>
           <div className="quote-badges">
             <span className={isLive ? "badge live" : "badge ad"}>{isLive ? "실제 데이터" : "API 연결 필요"}</span>
-            <span className="badge">{isLive ? "Yahoo Finance" : "fallback 표시"}</span>
+            <span className="badge">{isLive ? "시세 API" : "fallback 표시"}</span>
           </div>
         </div>
         <div className="quote-stats">
