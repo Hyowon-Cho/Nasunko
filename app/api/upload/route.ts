@@ -17,6 +17,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "5MB 이하 이미지만 업로드 가능합니다" }, { status: 400 });
   }
 
-  const blob = await put(file.name, file, { access: "public" });
+  const blob = await put(file.name, file, { access: "public", addRandomSuffix: true });
   return NextResponse.json({ url: blob.url });
 }
