@@ -52,7 +52,8 @@ export function LoungeEditor() {
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!title.trim() || !content.trim()) return;
+    if (!title.trim()) return;
+    if (!content.trim() && !imageUrl) return;
 
     setLoading(true);
     setError("");

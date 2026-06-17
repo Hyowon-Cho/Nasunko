@@ -22,8 +22,11 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const { title, author, content, image_url } = await request.json() as { title?: string; author?: string; content?: string; image_url?: string };
 
-  if (!title?.trim() || !content?.trim()) {
-    return NextResponse.json({ error: "제목과 내용을 입력하세요" }, { status: 400 });
+  if (!title?.trim()) {
+    return NextResponse.json({ error: "제목을 입력하세요" }, { status: 400 });
+  }
+  if (!content?.trim() && !image_url) {
+    return NextResponse.json({ error: "내용 또는 사진을 입력하세요" }, { status: 400 });
   }
 
   const id = createPostId();
@@ -33,7 +36,7 @@ export async function POST(request: NextRequest) {
   try {
     await query(
       `INSERT INTO posts (id, title, author, date, content, image_url) VALUES ($1, $2, $3, $4, $5, $6)`,
-      [id, title.trim(), authorName, date, content.trim(), image_url ?? null],
+      [id, title.trim(), authorName, date, content?.trim() ?? "", image_url ?? null],
     );
 
     return NextResponse.json({ id });
