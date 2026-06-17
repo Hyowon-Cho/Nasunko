@@ -21,23 +21,23 @@ const KR_RSS_SOURCES = [
 ];
 
 const CATEGORY_KEYWORDS: [Exclude<NewsCategory, "전체">, string[]][] = [
-  ["FOMC", ["FOMC", "연방준비제도", "연준", "파월", "통화정책", "기준금리 결정", "금리 인상", "금리 인하"]],
-  ["경제지표", ["CPI", "PPI", "GDP", "고용지표", "실업률", "소비자물가", "인플레이션", "경제성장률", "소매판매", "비농업", "고용보고서"]],
-  ["반도체", ["반도체", "엔비디아", "NVIDIA", "AMD", "TSMC", "SK하이닉스", "인텔", "퀄컴", "마이크론", "ASML", "칩", "파운드리"]],
-  ["빅테크", ["애플", "마이크로소프트", "아마존", "메타", "구글", "알파벳", "테슬라", "넷플릭스", "빅테크", "빅테크", "AI 모델", "클라우드"]],
-  ["유가", ["유가", "WTI", "원유", "브렌트", "OPEC", "배럴", "석유", "에너지"]],
-  ["환율", ["환율", "달러", "원달러", "달러원", "엔화", "유로", "외환", "환율 변동"]],
-  ["금리", ["금리", "국채", "채권", "수익률", "기준금리", "장단기"]],
-  ["코스피", ["코스피", "코스닥", "국내 증시", "한국 증시", "주가지수", "서울 증시"]],
+  ["FOMC", ["FOMC", "연방준비제도", "연준", "파월", "워시", "Fed ", "통화정책", "기준금리 결정", "금리 인상", "금리 인하", "연방공개시장위원회", "점도표", "베이지북"]],
+  ["경제지표", ["CPI", "PPI", "PCE", "GDP", "고용지표", "실업률", "소비자물가", "생산자물가", "인플레이션", "경제성장률", "소매판매", "비농업", "고용보고서", "무역수지", "ISM", "PMI", "신규실업"]],
+  ["반도체", ["반도체", "엔비디아", "NVIDIA", "AMD", "TSMC", "SK하이닉스", "인텔", "퀄컴", "마이크론", "ASML", "HBM", "D램", "낸드", "파운드리", "시스템반도체", "AI칩", "GPU"]],
+  ["빅테크", ["애플", "마이크로소프트", "아마존", "메타", "구글", "알파벳", "테슬라", "넷플릭스", "오픈AI", "OpenAI", "빅테크", "AI 모델", "클라우드", "스트리밍"]],
+  ["유가", ["유가", "WTI", "원유", "브렌트", "OPEC", "배럴", "석유", "에너지 가격", "산유국", "이란 원유", "러시아 원유"]],
+  ["환율", ["환율", "달러-원", "달러/원", "원화 가치", "달러 강세", "달러 약세", "엔화", "위안화", "유로화", "DXY", "달러인덱스", "외환보유"]],
+  ["금리", ["기준금리", "국채 금리", "국채 수익률", "회사채", "장단기 금리", "채권 시장", "금리 동결", "금리 인상", "금리 인하", "10년물", "2년물"]],
+  ["코스피", ["코스피", "코스닥", "국내 증시", "한국 증시", "외국인 순매수", "외국인 순매도", "증시 마감", "주가지수", "코스피200"]],
 ];
 
-function categorize(title: string): Exclude<NewsCategory, "전체"> {
+function categorize(title: string): Exclude<NewsCategory, "전체"> | null {
   for (const [category, keywords] of CATEGORY_KEYWORDS) {
     if (keywords.some((kw) => title.includes(kw))) {
       return category;
     }
   }
-  return "빅테크";
+  return null;
 }
 
 function extractCdataOrText(xml: string, tag: string): string {
@@ -64,7 +64,10 @@ function parseRssTime(pubDate: string): string {
 
 async function fetchRssSource(source: { url: string; site: string }): Promise<NewsItem[]> {
   try {
-    const res = await fetch(source.url, { next: { revalidate: 300 } });
+    const res = await fetch(source.url, {
+      next: { revalidate: 300 },
+      signal: AbortSignal.timeout(4000),
+    });
     if (!res.ok) return [];
 
     const xml = await res.text();
@@ -76,6 +79,7 @@ async function fetchRssSource(source: { url: string; site: string }): Promise<Ne
       const title = extractCdataOrText(itemXml, "title");
       const link = extractCdataOrText(itemXml, "link") || (itemXml.match(/<link\s*\/?>\s*(https?:\/\/[^\s<]+)/)?.[1] ?? "");
       const pubDate = extractCdataOrText(itemXml, "pubDate");
+      const desc = extractCdataOrText(itemXml, "description").replace(/<[^>]+>/g, "");
 
       if (!title || !link || seen.has(link)) continue;
       seen.add(link);
@@ -83,11 +87,14 @@ async function fetchRssSource(source: { url: string; site: string }): Promise<Ne
       const time = parseRssTime(pubDate);
       if (!time) continue;
 
+      const category = categorize(title + " " + desc);
+      if (!category) continue;
+
       items.push({
         id: `rss-${link}`,
         time,
         title,
-        category: categorize(title),
+        category,
         tags: [source.site],
         likes: 0,
         dislikes: 0,
