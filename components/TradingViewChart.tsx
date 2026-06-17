@@ -46,7 +46,6 @@ export function TradingViewChart({ symbol = "NASDAQ:NVDA" }: TradingViewChartPro
     <section className="card chart-card">
       <div className="section-head">
         <h2>나스닥 대표주 차트</h2>
-        <span className="badge">{symbol}</span>
       </div>
       <p className="chart-note">TradingView API로 원하는 주식 차트를 볼 수 있어요.</p>
       <div className="tradingview-shell">
