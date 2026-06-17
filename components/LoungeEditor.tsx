@@ -23,21 +23,25 @@ export function LoungeEditor() {
     setUploading(true);
     setError("");
 
-    const form = new FormData();
-    form.append("file", file);
+    try {
+      const form = new FormData();
+      form.append("file", file);
 
-    const res = await fetch("/api/upload", { method: "POST", body: form });
-    const data = await res.json() as { url?: string; error?: string };
+      const res = await fetch("/api/upload", { method: "POST", body: form });
+      const data = await res.json() as { url?: string; error?: string };
 
-    setUploading(false);
-
-    if (!res.ok) {
-      setError(data.error ?? "이미지 업로드에 실패했습니다.");
+      if (!res.ok) {
+        setError(data.error ?? "이미지 업로드에 실패했습니다.");
+        setImagePreview(null);
+      } else {
+        setImageUrl(data.url ?? null);
+      }
+    } catch {
+      setError("이미지 업로드에 실패했습니다.");
       setImagePreview(null);
-      return;
+    } finally {
+      setUploading(false);
     }
-
-    setImageUrl(data.url ?? null);
   }
 
   function removeImage() {
