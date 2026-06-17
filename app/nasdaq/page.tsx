@@ -3,7 +3,7 @@ import { randomInt } from "crypto";
 import { TickerTape } from "@/components/TickerTape";
 import { TradingViewChart } from "@/components/TradingViewChart";
 import { TradingViewRelatedMarketCard } from "@/components/TradingViewRelatedMarketCard";
-import { directionOf, formatNumber, getMarketQuotes, getTickerQuotes } from "@/lib/markets";
+import { getMarketQuotes, getTickerQuotes } from "@/lib/markets";
 
 export const metadata: Metadata = {
   title: "나선코 - 나스닥 실시간 시세",
@@ -24,12 +24,8 @@ export default async function NasdaqPage() {
     getTickerQuotes(),
     getMarketQuotes("big-tech")
   ]);
-  const liveCount = nasdaqStocks.filter((quote) => quote.source === "live").length;
   const randomStock = nasdaqStocks[randomInt(Math.max(nasdaqStocks.length, 1))] ?? nasdaqStocks[0];
   const chartSymbol = `NASDAQ:${randomStock?.symbol ?? "NVDA"}`;
-  const movers = [...nasdaqStocks]
-    .sort((a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent))
-    .slice(0, 5);
 
   return (
     <main className="main">
@@ -39,31 +35,8 @@ export default async function NasdaqPage() {
         <p className="page-subtitle">나스닥 대형 성장주의 차트, 등락, 거래량을 한 화면에서 빠르게 확인합니다.</p>
       </section>
 
-      <div className="grid two section">
+      <div className="section">
         <TradingViewChart symbol={chartSymbol} />
-        <section className="card card-inner">
-          <div className="section-head">
-            <h2>오늘의 움직임</h2>
-            <span className={liveCount > 0 ? "badge live" : "badge ad"}>Live {liveCount}/{nasdaqStocks.length}</span>
-          </div>
-          <div className="mover-list">
-            {movers.map((quote) => {
-              const direction = directionOf(quote.change);
-              return (
-                <a className="mover-row" href={`https://kr.tradingview.com/symbols/NASDAQ-${quote.symbol}/`} target="_blank" rel="noreferrer" key={quote.symbol}>
-                  <div>
-                    <span>{quote.symbol}</span>
-                    <strong>{quote.name}</strong>
-                  </div>
-                  <div>
-                    <strong>{formatNumber(quote.price, 2)}</strong>
-                    <em className={direction}>{quote.change > 0 ? "+" : ""}{formatNumber(quote.change, 2)} ({quote.changePercent > 0 ? "+" : ""}{formatNumber(quote.changePercent, 2)}%)</em>
-                  </div>
-                </a>
-              );
-            })}
-          </div>
-        </section>
       </div>
 
       <section className="section">
