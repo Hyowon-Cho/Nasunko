@@ -393,6 +393,13 @@ th {
   padding: 14px;
 }
 
+.chart-note {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .tradingview-shell {
   position: relative;
   height: 520px;

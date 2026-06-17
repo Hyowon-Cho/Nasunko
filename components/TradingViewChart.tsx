@@ -6,7 +6,7 @@ type TradingViewChartProps = {
   symbol?: string;
 };
 
-export function TradingViewChart({ symbol = "CME_MINI:NQ1!" }: TradingViewChartProps) {
+export function TradingViewChart({ symbol = "NASDAQ:IXIC" }: TradingViewChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loaded, setLoaded] = useState(false);
 
@@ -25,8 +25,12 @@ export function TradingViewChart({ symbol = "CME_MINI:NQ1!" }: TradingViewChartP
       timezone: "Asia/Seoul",
       theme: "dark",
       style: "1",
-      locale: "kr",
+      locale: "ko",
       allow_symbol_change: true,
+      hide_symbol_search: false,
+      hide_top_toolbar: false,
+      save_image: false,
+      show_symbol_logo: false,
       calendar: false,
       support_host: "https://www.tradingview.com"
     });
@@ -35,20 +39,21 @@ export function TradingViewChart({ symbol = "CME_MINI:NQ1!" }: TradingViewChartP
     containerRef.current.appendChild(script);
 
     const timeout = window.setTimeout(() => setLoaded(true), 2200);
-    return () => window.clearTimeout(timeout);
+      return () => window.clearTimeout(timeout);
   }, [symbol]);
 
   return (
     <section className="card chart-card">
       <div className="section-head">
-        <h2>나스닥100 야간선물 차트</h2>
-        <span className="badge">CME_MINI:NQ1!</span>
+        <h2>나스닥 종합주가지수 차트</h2>
+        <span className="badge">{symbol}</span>
       </div>
+      <p className="chart-note">기본값은 나스닥 종합주가지수입니다. 필요하면 나스닥100, ETF, 개별 빅테크 심볼로 바꿔 비교할 수 있습니다.</p>
       <div className="tradingview-shell">
         {!loaded && (
           <div className="chart-fallback">
             <strong>차트 불러오는 중…</strong>
-            <span>TradingView가 차단된 환경에서도 이 영역의 높이는 유지됩니다.</span>
+            <span>TradingView가 차단되거나 심볼 제공이 제한되어도 이 영역의 높이는 유지됩니다.</span>
           </div>
         )}
         <div ref={containerRef} className="tradingview-widget-container__widget" />

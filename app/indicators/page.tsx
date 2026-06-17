@@ -4,7 +4,7 @@ import { getIndicators } from "@/lib/indicators";
 
 export const metadata: Metadata = {
   title: "나선코 - 미국 경제지표 캘린더",
-  description: "미국 CPI, PPI, FOMC, 고용, 실업률, 소매판매와 나스닥100 선물의 관계를 확인하세요."
+  description: "미국 CPI, PPI, FOMC, 고용, 실업률, 소매판매와 나스닥의 관계를 확인하세요."
 };
 
 export default async function IndicatorsPage() {
@@ -14,7 +14,7 @@ export default async function IndicatorsPage() {
     <main className="main">
       <section className="hero">
         <h1 className="page-title">경제지표</h1>
-        <p className="page-subtitle">나스닥100 야간선물에 영향을 주는 미국 물가, 고용, 소비, FOMC 일정을 한 화면에서 확인합니다.</p>
+        <p className="page-subtitle">나스닥에 영향을 주는 미국 물가, 고용, 소비, FOMC 일정을 한 화면에서 확인합니다.</p>
       </section>
       <section className="grid three section">
         {indicators.map((indicator) => (

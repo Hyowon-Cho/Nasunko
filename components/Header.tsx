@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const navItems = [
-  { href: "/futures", label: "야간선물" },
+  { href: "/futures", label: "나스닥" },
   { href: "/big-tech", label: "미국 빅테크" },
   { href: "/semiconductor", label: "미국 반도체" },
   { href: "/indicators", label: "경제지표" },
