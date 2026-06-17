@@ -85,7 +85,7 @@ export function LoungeDetail({ id }: { id: string }) {
             <span>{post.author}</span>
             <span>·</span>
             <span>{post.date}</span>
-            <span className="detail-counters">⊙ {post.views} ♡ {post.comments}</span>
+            <span className="detail-counters">⊙ {post.views} ♡ {post.likes} 💬 {post.comments}</span>
           </div>
         </header>
         {isEditing ? (
