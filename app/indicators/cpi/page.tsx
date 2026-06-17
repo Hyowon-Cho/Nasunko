@@ -27,7 +27,7 @@ function IndicatorDetail({ indicator, history }: Awaited<ReturnType<typeof getIn
         <article className="card card-inner metric"><span>이전</span><strong>{indicator.previous}</strong></article>
       </section>
       <section className="card card-inner section">
-        <div className="section-head"><h2>전년동월비/전월비 추이</h2><span className="badge">mock historical</span></div>
+        <div className="section-head"><h2>전년동월비/전월비 추이</h2></div>
         <IndicatorChart data={history} />
       </section>
       <section className="grid two section">

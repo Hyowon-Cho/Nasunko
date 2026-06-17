@@ -181,25 +181,51 @@ export async function getIndicator(slug: string): Promise<Indicator | undefined>
   return all.find((item) => item.slug === slug);
 }
 
-export const indicatorHistory: Record<string, IndicatorPoint[]> = {
-  cpi: [
-    { month: "12월", yoy: 2.9, mom: 0.4 },
-    { month: "1월", yoy: 3.0, mom: 0.5 },
-    { month: "2월", yoy: 2.8, mom: 0.2 },
-    { month: "3월", yoy: 2.6, mom: 0.1 },
-    { month: "4월", yoy: 2.3, mom: 0.2 },
-    { month: "5월", yoy: 2.4, mom: 0.2 },
-  ],
-  ppi: [
-    { month: "12월", yoy: 3.4, mom: 0.4 },
-    { month: "1월", yoy: 3.3, mom: 0.3 },
-    { month: "2월", yoy: 3.1, mom: 0.1 },
-    { month: "3월", yoy: 2.9, mom: 0.1 },
-    { month: "4월", yoy: 2.7, mom: 0.0 },
-    { month: "5월", yoy: 2.6, mom: 0.2 },
-  ],
+const BLS_SERIES: Partial<Record<string, string>> = {
+  cpi: "CUUR0000SA0",
+  ppi: "WPUFD49207",
 };
 
+const KR_MONTHS = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
+
 export async function getIndicatorHistory(slug: string): Promise<IndicatorPoint[]> {
-  return indicatorHistory[slug] ?? indicatorHistory.cpi;
+  const seriesId = BLS_SERIES[slug];
+  if (!seriesId) return [];
+
+  try {
+    const currentYear = new Date().getFullYear();
+    const res = await fetch("https://api.bls.gov/publicAPI/v1/timeseries/data/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        seriesid: [seriesId],
+        startyear: String(currentYear - 2),
+        endyear: String(currentYear),
+      }),
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+
+    const json = await res.json() as { Results: { series: BlsSeries[] } };
+    const pts = blsPoints(json.Results.series[0]).filter(
+      (p) => p.key.slice(4) !== "M13"
+    );
+
+    const recent = pts.slice(-12);
+    return recent.map((pt, i) => {
+      const prevPt = i > 0 ? recent[i - 1] : null;
+      const yearAgoKey = String(parseInt(pt.key.slice(0, 4)) - 1) + pt.key.slice(4);
+      const yearAgo = pts.find((p) => p.key === yearAgoKey);
+      const monthIdx = parseInt(pt.key.slice(5, 7)) - 1;
+      const yoy = yearAgo ? (pt.value / yearAgo.value - 1) * 100 : 0;
+      const mom = prevPt ? (pt.value / prevPt.value - 1) * 100 : 0;
+      return {
+        month: KR_MONTHS[monthIdx],
+        yoy: parseFloat(yoy.toFixed(2)),
+        mom: parseFloat(mom.toFixed(2)),
+      };
+    });
+  } catch {
+    return [];
+  }
 }
