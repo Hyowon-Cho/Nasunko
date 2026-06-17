@@ -187,24 +187,25 @@ async function fetchFmpQuotes(fallbackQuotes: MarketQuote[]) {
   }
 
   try {
-    const entries = await Promise.all(fallbackQuotes.map(async (fallback) => {
-      const symbol = fallback.fmpSymbol ?? fallback.yahooSymbol ?? fallback.symbol;
-      const url = `https://financialmodelingprep.com/stable/quote?symbol=${encodeURIComponent(symbol)}&apikey=${process.env.FMP_API_KEY}`;
-      const response = await fetch(url, { next: { revalidate: 30 } });
+    const symbols = fallbackQuotes.map((q) => q.fmpSymbol ?? q.yahooSymbol ?? q.symbol).join(",");
+    const url = `https://financialmodelingprep.com/api/v3/quote/${encodeURIComponent(symbols)}?apikey=${process.env.FMP_API_KEY}`;
+    const response = await fetch(url, { next: { revalidate: 30 } });
 
-      if (!response.ok) {
-        return [fallback.symbol, null] as const;
-      }
+    if (!response.ok) {
+      return null;
+    }
 
-      const data = await response.json() as FmpQuote[] | { Error?: string };
-      const [quote] = Array.isArray(data) ? data : [];
-      return [fallback.symbol, quote ?? null] as const;
-    }));
+    const data = await response.json() as FmpQuote[] | { "Error Message"?: string };
 
-    const results = new Map(entries);
+    if (!Array.isArray(data)) {
+      return null;
+    }
+
+    const results = new Map(data.map((quote) => [quote.symbol, quote]));
 
     return fallbackQuotes.map((fallback) => {
-      const live = results.get(fallback.symbol);
+      const symbol = fallback.fmpSymbol ?? fallback.yahooSymbol ?? fallback.symbol;
+      const live = results.get(symbol);
 
       if (!live || typeof live.price !== "number") {
         return { ...fallback, source: "fallback" as const };
