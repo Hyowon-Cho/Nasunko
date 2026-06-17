@@ -29,7 +29,7 @@ export function TradingViewRelatedMarketCard({ symbol, title, subtitle }: Tradin
       locale: "kr",
       dateRange: "1D",
       colorTheme: "dark",
-      isTransparent: true,
+      isTransparent: false,
       autosize: true,
       largeChartUrl: tradingViewUrl
     });
