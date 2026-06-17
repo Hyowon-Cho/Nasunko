@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   description: "미국 경제지표, FOMC, 빅테크, 반도체, 환율, 금리 뉴스를 한 곳에서 추적합니다."
 };
 
+export const revalidate = 300;
+
 export default async function NewsPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
   const params = await searchParams;
   const category = newsCategories.includes(params.category as NewsCategory) ? (params.category as NewsCategory) : "전체";
@@ -27,16 +29,17 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
           <article className="timeline-item" key={item.id}>
             <time>{item.time}</time>
             <div>
-              <h2>{item.title}</h2>
+              {item.url ? (
+                <a href={item.url} target="_blank" rel="noopener noreferrer">
+                  <h2>{item.title}</h2>
+                </a>
+              ) : (
+                <h2>{item.title}</h2>
+              )}
               <div className="tag-row">
                 <span className="badge">{item.category}</span>
                 {item.tags.map((tag) => <span className="badge" key={tag}>{tag}</span>)}
               </div>
-            </div>
-            <div className="reaction-row">
-              <span>좋아요 {item.likes}</span>
-              <span>싫어요 {item.dislikes}</span>
-              <span>댓글 {item.comments}</span>
             </div>
           </article>
         ))}
