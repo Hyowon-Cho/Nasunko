@@ -63,6 +63,12 @@ async function fetchBls(): Promise<BlsSeries[]> {
   }
 }
 
+function toTargetRange(effectiveRate: number): string {
+  const lower = Math.floor(effectiveRate / 0.25) * 0.25;
+  const upper = lower + 0.25;
+  return `${lower.toFixed(2)}–${upper.toFixed(2)}%`;
+}
+
 async function fetchFomcRate(): Promise<{ latest: string; previous: string } | null> {
   try {
     const res = await fetch("https://fred.stlouisfed.org/graph/fredgraph.csv?id=FEDFUNDS", {
@@ -78,8 +84,10 @@ async function fetchFomcRate(): Promise<{ latest: string; previous: string } | n
     const latest = parse(rows[0]);
     const previous = parse(rows[1]);
     if (!latest) return null;
-    const fmt = (v: number) => `${v.toFixed(2)}%`;
-    return { latest: fmt(latest), previous: previous ? fmt(previous) : "—" };
+    return {
+      latest: toTargetRange(latest),
+      previous: previous ? toTargetRange(previous) : "—",
+    };
   } catch {
     return null;
   }
