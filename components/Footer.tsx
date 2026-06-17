@@ -8,7 +8,7 @@ export function Footer() {
         <p>나스닥 종합주가지수 · 차트 · 빅테크 · 반도체 · 경제지표 · 뉴스를 한 화면에서.</p>
       </div>
       <div className="footer-links">
-        <Link href="/futures">나스닥</Link>
+        <Link href="/nasdaq">나스닥</Link>
         <Link href="/big-tech">미국 빅테크</Link>
         <Link href="/semiconductor">미국 반도체</Link>
         <Link href="/indicators">경제지표</Link>

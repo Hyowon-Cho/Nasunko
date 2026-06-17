@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const navItems = [
-  { href: "/futures", label: "나스닥" },
+  { href: "/nasdaq", label: "나스닥" },
   { href: "/big-tech", label: "미국 빅테크" },
   { href: "/semiconductor", label: "미국 반도체" },
   { href: "/indicators", label: "경제지표" },
@@ -13,7 +13,7 @@ export function Header() {
   return (
     <header className="header">
       <div className="header-inner">
-        <Link className="brand" href="/futures" aria-label="나선코 홈">
+        <Link className="brand" href="/nasdaq" aria-label="나선코 홈">
           <span className="brand-name">나선코</span>
         </Link>
         <nav className="nav" aria-label="주요 메뉴">

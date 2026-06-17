@@ -436,15 +436,62 @@ th {
 
 .market-card {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 104px auto;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "label value"
+    "chart value";
   align-items: center;
   gap: 12px;
   padding: 14px;
+  overflow: hidden;
+}
+
+.market-card-label,
+.market-card-value {
+  min-width: 0;
+}
+
+.market-card-label {
+  grid-area: label;
+}
+
+.market-card-value {
+  grid-area: value;
+  align-self: start;
+}
+
+.market-card-value p {
+  overflow-wrap: anywhere;
 }
 
 .market-card h3 {
   margin-top: 4px;
   font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.market-card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mini-source {
+  display: inline-flex;
+  align-items: center;
+  min-height: 18px;
+  padding: 0 6px;
+  border: 1px solid rgba(255, 75, 85, 0.42);
+  border-radius: 5px;
+  color: #ff6f73;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.mini-source.live {
+  border-color: rgba(80, 227, 129, 0.36);
+  color: #50e381;
 }
 
 .market-card p {
@@ -460,6 +507,10 @@ th {
 .sparkline {
   width: 96px;
   height: 34px;
+  display: block;
+  grid-area: chart;
+  justify-self: start;
+  flex: 0 0 auto;
 }
 
 .sparkline.up {
@@ -994,13 +1045,11 @@ th {
   }
 
   .market-card {
-    grid-template-columns: minmax(0, 1fr) 86px;
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 
-  .market-card > div:last-child {
-    grid-column: 1 / -1;
-    display: flex;
-    justify-content: space-between;
+  .market-card-value {
+    display: block;
   }
 
   .market-card strong,
@@ -1029,6 +1078,37 @@ th {
   .detail-counters {
     width: 100%;
     margin-left: 0;
+  }
+}
+
+@media (max-width: 1180px) {
+  .grid.four {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .grid.four .market-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .grid.four .market-card-value {
+    display: block;
+    min-width: 0;
+  }
+
+  .grid.four .market-card strong,
+  .grid.four .market-card p {
+    text-align: left;
+  }
+
+  .grid.four .market-card p {
+    white-space: normal;
+    line-height: 1.35;
+  }
+}
+
+@media (max-width: 760px) {
+  .grid.four {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -34,19 +34,18 @@ export const directionOf = (change: number): Direction =>
   change > 0 ? "up" : change < 0 ? "down" : "flat";
 
 export const tickerQuotes: MarketQuote[] = [
-  { symbol: "IXIC", yahooSymbol: "^IXIC", name: "Nasdaq Composite", price: 19617.88, change: 137.54, changePercent: 0.71, sparkline: [7, 8, 7, 10, 11, 12, 11, 14] },
-  { symbol: "NDX", yahooSymbol: "^NDX", name: "Nasdaq 100", price: 22184.25, change: 146.5, changePercent: 0.66, sparkline: [7, 8, 7, 10, 11, 12, 11, 14] },
-  { symbol: "GSPC", yahooSymbol: "^GSPC", name: "S&P 500", price: 6028.5, change: 21.25, changePercent: 0.35, sparkline: [4, 5, 5, 6, 7, 6, 8, 9] },
-  { symbol: "DJI", yahooSymbol: "^DJI", name: "Dow Jones", price: 42912, change: 84, changePercent: 0.2, sparkline: [3, 3, 4, 5, 4, 6, 6, 7] },
-  { symbol: "USDKRW", yahooSymbol: "KRW=X", name: "USD/KRW", price: 1368.44, change: -4.12, changePercent: -0.3, sparkline: [9, 8, 8, 7, 6, 6, 5, 4] },
-  { symbol: "DXY", yahooSymbol: "DX-Y.NYB", name: "DXY", price: 98.17, change: -0.22, changePercent: -0.22, sparkline: [8, 8, 7, 7, 6, 5, 5, 4] },
-  { symbol: "US10Y", yahooSymbol: "^TNX", name: "US 10Y", price: 4.33, change: 0.03, changePercent: 0.7, sparkline: [3, 4, 5, 4, 5, 6, 7, 7] },
-  { symbol: "VIX", yahooSymbol: "^VIX", name: "VIX", price: 14.89, change: -0.56, changePercent: -3.62, sparkline: [12, 11, 10, 9, 8, 8, 7, 6] },
-  { symbol: "WTI", yahooSymbol: "CL=F", name: "WTI", price: 75.22, change: 0.86, changePercent: 1.16, sparkline: [4, 4, 5, 6, 6, 7, 8, 8] },
-  { symbol: "GOLD", yahooSymbol: "GC=F", name: "Gold", price: 3412.8, change: -12.4, changePercent: -0.36, sparkline: [10, 9, 9, 8, 7, 7, 6, 6] },
-  { symbol: "BTC", yahooSymbol: "BTC-USD", name: "BTC", price: 104220, change: 1820, changePercent: 1.78, sparkline: [6, 7, 7, 9, 10, 9, 11, 13] },
   { symbol: "NVDA", yahooSymbol: "NVDA", name: "NVDA", price: 144.12, change: 2.44, changePercent: 1.72, sparkline: [5, 6, 8, 8, 9, 11, 10, 12] },
-  { symbol: "TSLA", yahooSymbol: "TSLA", name: "TSLA", price: 184.93, change: -3.16, changePercent: -1.68, sparkline: [12, 11, 9, 8, 8, 7, 6, 5] }
+  { symbol: "MSFT", yahooSymbol: "MSFT", name: "MSFT", price: 478.91, change: 3.81, changePercent: 0.8, sparkline: [4, 4, 5, 6, 6, 7, 8, 8] },
+  { symbol: "AAPL", yahooSymbol: "AAPL", name: "AAPL", price: 198.43, change: -1.16, changePercent: -0.58, sparkline: [9, 8, 7, 7, 6, 6, 5, 5] },
+  { symbol: "AMZN", yahooSymbol: "AMZN", name: "AMZN", price: 187.64, change: 1.88, changePercent: 1.01, sparkline: [5, 5, 6, 7, 8, 7, 9, 10] },
+  { symbol: "META", yahooSymbol: "META", name: "META", price: 693.17, change: 7.72, changePercent: 1.13, sparkline: [6, 7, 8, 8, 9, 10, 11, 11] },
+  { symbol: "GOOGL", yahooSymbol: "GOOGL", name: "GOOGL", price: 175.8, change: 0.34, changePercent: 0.19, sparkline: [6, 5, 6, 6, 7, 7, 7, 8] },
+  { symbol: "TSLA", yahooSymbol: "TSLA", name: "TSLA", price: 184.93, change: -3.16, changePercent: -1.68, sparkline: [12, 11, 9, 8, 8, 7, 6, 5] },
+  { symbol: "NFLX", yahooSymbol: "NFLX", name: "NFLX", price: 1224.51, change: 18.3, changePercent: 1.52, sparkline: [4, 6, 5, 7, 9, 9, 10, 12] },
+  { symbol: "AMD", yahooSymbol: "AMD", name: "AMD", price: 126.55, change: 2.62, changePercent: 2.11, sparkline: [5, 6, 7, 7, 9, 10, 12, 13] },
+  { symbol: "ADBE", yahooSymbol: "ADBE", name: "ADBE", price: 207.32, change: 0.0, changePercent: 0.0, sparkline: [5, 6, 5, 7, 8, 8, 9, 9] },
+  { symbol: "INTC", yahooSymbol: "INTC", name: "INTC", price: 117.05, change: 0.0, changePercent: 0.0, sparkline: [4, 5, 5, 6, 6, 7, 6, 8] },
+  { symbol: "SPY", yahooSymbol: "SPY", name: "SPY", price: 750.33, change: -4.5, changePercent: -0.6, sparkline: [9, 8, 7, 7, 6, 6, 5, 5] }
 ];
 
 export const nasdaqComposite: MarketQuote = {
@@ -66,15 +65,7 @@ export const nasdaqComposite: MarketQuote = {
 };
 
 export const relatedMarkets: MarketQuote[] = [
-  tickerQuotes[1],
-  tickerQuotes[2],
-  tickerQuotes[3],
-  tickerQuotes[7],
-  tickerQuotes[4],
-  tickerQuotes[6],
-  tickerQuotes[9],
-  tickerQuotes[8],
-  { symbol: "SOXX", yahooSymbol: "SOXX", name: "SOXX", price: 246.18, change: 3.21, changePercent: 1.32, sparkline: [4, 5, 6, 8, 7, 10, 11, 12] }
+  ...tickerQuotes.slice(0, 10)
 ];
 
 export const bigTechQuotes: MarketQuote[] = [
@@ -87,7 +78,7 @@ export const bigTechQuotes: MarketQuote[] = [
   { symbol: "TSLA", yahooSymbol: "TSLA", name: "Tesla", price: 184.93, change: -3.16, changePercent: -1.68, volume: "92.7M", sparkline: [12, 11, 9, 8, 8, 7, 6, 5] },
   { symbol: "NFLX", yahooSymbol: "NFLX", name: "Netflix", price: 1224.51, change: 18.3, changePercent: 1.52, volume: "4.1M", sparkline: [4, 6, 5, 7, 9, 9, 10, 12] },
   { symbol: "AMD", yahooSymbol: "AMD", name: "AMD", price: 126.55, change: 2.62, changePercent: 2.11, volume: "67.2M", sparkline: [5, 6, 7, 7, 9, 10, 12, 13] },
-  { symbol: "AVGO", yahooSymbol: "AVGO", name: "Broadcom", price: 1806.2, change: 26.1, changePercent: 1.47, volume: "5.7M", sparkline: [6, 6, 7, 8, 10, 9, 11, 12] }
+  { symbol: "ADBE", yahooSymbol: "ADBE", name: "Adobe", price: 207.32, change: 0.0, changePercent: 0.0, volume: "0", sparkline: [5, 6, 5, 7, 8, 8, 9, 9] }
 ];
 
 export const semiconductorQuotes: MarketQuote[] = [
@@ -118,10 +109,16 @@ type YahooQuote = {
 
 type FmpQuote = {
   symbol: string;
+  name?: string;
   price?: number;
   change?: number;
+  changePercentage?: number;
   changesPercentage?: number;
+  open?: number;
+  dayHigh?: number;
+  dayLow?: number;
   volume?: number;
+  timestamp?: number;
 };
 
 const compactNumber = (value?: number) => {
@@ -194,28 +191,25 @@ async function fetchFmpQuotes(fallbackQuotes: MarketQuote[]) {
     return null;
   }
 
-  const symbols = fallbackQuotes.map((quote) => quote.fmpSymbol ?? quote.yahooSymbol ?? quote.symbol);
-  const encodedSymbols = symbols.map((symbol) => encodeURIComponent(symbol)).join(",");
-  const url = `https://financialmodelingprep.com/stable/quote-short?symbol=${encodedSymbols}&apikey=${process.env.FMP_API_KEY}`;
-
   try {
-    const response = await fetch(url, { next: { revalidate: 30 } });
+    const entries = await Promise.all(fallbackQuotes.map(async (fallback) => {
+      const symbol = fallback.fmpSymbol ?? fallback.yahooSymbol ?? fallback.symbol;
+      const url = `https://financialmodelingprep.com/stable/quote?symbol=${encodeURIComponent(symbol)}&apikey=${process.env.FMP_API_KEY}`;
+      const response = await fetch(url, { next: { revalidate: 30 } });
 
-    if (!response.ok) {
-      return null;
-    }
+      if (!response.ok) {
+        return [fallback.symbol, null] as const;
+      }
 
-    const data = await response.json() as FmpQuote[] | { Error?: string };
+      const data = await response.json() as FmpQuote[] | { Error?: string };
+      const [quote] = Array.isArray(data) ? data : [];
+      return [fallback.symbol, quote ?? null] as const;
+    }));
 
-    if (!Array.isArray(data)) {
-      return null;
-    }
-
-    const results = new Map(data.map((quote) => [quote.symbol, quote]));
+    const results = new Map(entries);
 
     return fallbackQuotes.map((fallback) => {
-      const fmpSymbol = fallback.fmpSymbol ?? fallback.yahooSymbol ?? fallback.symbol;
-      const live = results.get(fmpSymbol);
+      const live = results.get(fallback.symbol);
 
       if (!live || typeof live.price !== "number") {
         return { ...fallback, source: "fallback" as const };
@@ -225,9 +219,12 @@ async function fetchFmpQuotes(fallbackQuotes: MarketQuote[]) {
         ...fallback,
         price: live.price,
         change: live.change ?? fallback.change,
-        changePercent: live.changesPercentage ?? fallback.changePercent,
+        changePercent: live.changePercentage ?? live.changesPercentage ?? fallback.changePercent,
+        open: live.open ?? fallback.open,
+        high: live.dayHigh ?? fallback.high,
+        low: live.dayLow ?? fallback.low,
         volume: compactNumber(live.volume) ?? fallback.volume,
-        time: quoteTime(Math.floor(Date.now() / 1000)),
+        time: quoteTime(live.timestamp ?? Math.floor(Date.now() / 1000)),
         source: "live" as const
       };
     });

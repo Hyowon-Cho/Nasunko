@@ -27,6 +27,7 @@ export function QuoteTable({ quotes }: QuoteTableProps) {
                 <td>
                   <strong>{quote.symbol}</strong>
                   <span className="table-name">{quote.name}</span>
+                  {quote.source === "fallback" && <span className="mini-source">API 필요</span>}
                 </td>
                 <td>{formatNumber(quote.price, quote.price > 1000 ? 2 : 2)}</td>
                 <td className={direction}>{quote.change > 0 ? "+" : ""}{formatNumber(quote.change, 2)}</td>
