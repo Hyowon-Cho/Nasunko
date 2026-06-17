@@ -15,9 +15,9 @@ export type NewsItem = {
 export const newsCategories: NewsCategory[] = ["전체", "경제지표", "FOMC", "빅테크", "반도체", "환율", "금리", "유가", "코스피"];
 
 const KR_RSS_SOURCES = [
-  { url: "https://www.yna.co.kr/RSS/economy.xml", site: "연합뉴스" },
-  { url: "https://rss.mt.co.kr/auto/finance.xml", site: "머니투데이" },
-  { url: "https://rss.hankyung.com/feed/finance.xml", site: "한국경제" },
+  { url: "https://www.yna.co.kr/rss/economy.xml", site: "연합뉴스" },
+  { url: "https://rss.donga.com/economy.xml", site: "동아일보" },
+  { url: "https://www.hankyung.com/feed/all-news", site: "한국경제" },
 ];
 
 const CATEGORY_KEYWORDS: [Exclude<NewsCategory, "전체">, string[]][] = [
