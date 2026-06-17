@@ -28,6 +28,8 @@ export async function GET() {
     )
   `);
 
+    await query(`ALTER TABLE posts ADD COLUMN IF NOT EXISTS image_url TEXT`);
+
     return NextResponse.json({ ok: true, message: "테이블 생성 완료" });
   } catch (error) {
     return databaseErrorResponse(error);
