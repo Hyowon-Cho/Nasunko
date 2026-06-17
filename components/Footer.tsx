@@ -5,7 +5,7 @@ export function Footer() {
     <footer className="footer">
       <div>
         <strong>나선코</strong>
-        <p>나스닥 종합주가지수 / 차트 / 빅테크 / 반도체 / 경제지표 / 뉴스를 한 화면에서.</p>
+        <p> 왜 내 주식만 안 오르는 건데? 차트, 지표, 뉴스를 한 화면에서.</p>
       </div>
       <div className="footer-links">
         <Link href="/nasdaq">나스닥</Link>
