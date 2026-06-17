@@ -42,9 +42,9 @@ export default async function NasdaqPage() {
       <section className="section">
         <div className="section-head section-title-row">
           <h2>연관 시장</h2>
-          <p className="page-subtitle">금,은,유가 등 시세를 알 수 있어요</p>
           <span className="badge">TradingView</span>
         </div>
+        <p className="chart-note">금,은,유가 등 시세를 알 수 있어요</p>
         <div className="related-tv-grid">
           {relatedMarkets.map((market) => (
             <TradingViewRelatedMarketCard key={market.symbol} symbol={market.symbol} title={market.title} subtitle={market.subtitle} />
