@@ -812,6 +812,68 @@ th {
   font-weight: 800;
 }
 
+.market-ranking {
+  min-height: 360px;
+}
+
+.ranking-list {
+  display: grid;
+  gap: 10px;
+}
+
+.ranking-row {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.ranking-row:last-child {
+  border-bottom: 0;
+}
+
+.ranking-row > span {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.ranking-row div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.ranking-row strong,
+.ranking-row small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ranking-row strong {
+  color: var(--text);
+  font-size: 15px;
+}
+
+.ranking-row small {
+  color: var(--muted);
+}
+
+.ranking-row em {
+  font-style: normal;
+  font-size: 16px;
+  font-weight: 900;
+}
+
 .news-stack article {
   display: grid;
   gap: 5px;
