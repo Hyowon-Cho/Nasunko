@@ -9,7 +9,6 @@ export function Footer() {
       </div>
       <div className="footer-links">
         <Link href="/nasdaq">나스닥</Link>
-        <Link href="/market-map">마켓맵</Link>
         <Link href="/feed">피드</Link>
         <Link href="/lounge">라운지</Link>
       </div>

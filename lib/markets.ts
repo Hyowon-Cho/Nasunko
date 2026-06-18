@@ -114,11 +114,7 @@ type FmpQuote = {
   dayLow?: number;
   volume?: number;
   timestamp?: number;
-  exchange?: string;
-  exchangeShortName?: string;
 };
-
-type FmpMoverResponse = FmpQuote[] | FmpQuote | { "Error Message"?: string; error?: string };
 
 const compactNumber = (value?: number) => {
   if (typeof value !== "number") {
@@ -261,63 +257,6 @@ async function getLiveQuotesOnly(fallbackQuotes: MarketQuote[]) {
   return yahooQuotes.filter((quote) => quote.source === "live");
 }
 
-function toMarketQuoteFromFmp(quote: FmpQuote): MarketQuote | null {
-  if (!quote.symbol || typeof quote.price !== "number") return null;
-
-  const change = quote.change ?? 0;
-  const changePercent = quote.changePercentage ?? quote.changesPercentage ?? 0;
-
-  return {
-    symbol: quote.symbol,
-    yahooSymbol: quote.symbol,
-    fmpSymbol: quote.symbol,
-    name: quote.name ?? quote.symbol,
-    price: quote.price,
-    change,
-    changePercent,
-    volume: compactNumber(quote.volume),
-    time: quoteTime(quote.timestamp ?? Math.floor(Date.now() / 1000)),
-    source: "live",
-    sparkline: change >= 0 ? [4, 5, 7, 6, 8, 10, 11, 13] : [13, 11, 10, 8, 7, 6, 5, 4],
-  };
-}
-
-async function fetchFmpMoverEndpoint(endpoint: string): Promise<FmpQuote[]> {
-  if (!process.env.FMP_API_KEY) return [];
-
-  try {
-    const response = await fetch(`https://financialmodelingprep.com/${endpoint}?apikey=${process.env.FMP_API_KEY}`, {
-      next: { revalidate: 60 },
-    });
-
-    if (!response.ok) return [];
-
-    const data = await response.json() as FmpMoverResponse;
-    if (!Array.isArray(data)) return [];
-
-    return data;
-  } catch {
-    return [];
-  }
-}
-
-function isNasdaqPennyStock(quote: FmpQuote) {
-  const exchange = `${quote.exchangeShortName ?? ""} ${quote.exchange ?? ""}`.toUpperCase();
-  return quote.price !== undefined && quote.price > 0 && quote.price <= 5 && exchange.includes("NASDAQ");
-}
-
-async function getPennyStockRanking(kind: "gainers" | "losers") {
-  const endpoint = kind === "gainers" ? "stable/biggest-gainers" : "stable/biggest-losers";
-  const movers = await fetchFmpMoverEndpoint(endpoint);
-
-  return movers
-    .filter(isNasdaqPennyStock)
-    .map(toMarketQuoteFromFmp)
-    .filter((quote): quote is MarketQuote => Boolean(quote))
-    .sort((a, b) => kind === "gainers" ? b.changePercent - a.changePercent : a.changePercent - b.changePercent)
-    .slice(0, 5);
-}
-
 export async function getTickerQuotes() {
   return getLiveQuotesOnly(tickerQuotes);
 }
@@ -338,13 +277,4 @@ export async function getMarketQuotes(kind: "big-tech" | "semiconductor") {
 export async function getMagnificentSevenQuotes() {
   const symbols = new Set(["NVDA", "MSFT", "AAPL", "AMZN", "META", "GOOGL", "TSLA"]);
   return getLiveQuotes(bigTechQuotes.filter((quote) => symbols.has(quote.symbol)));
-}
-
-export async function getPennyStockMovers() {
-  const [gainers, losers] = await Promise.all([
-    getPennyStockRanking("gainers"),
-    getPennyStockRanking("losers"),
-  ]);
-
-  return { gainers, losers };
 }
