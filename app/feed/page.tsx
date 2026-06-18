@@ -17,6 +17,7 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
     getIndicators(),
     getNews(category),
   ]);
+  const visibleNews = news.slice(0, 5);
 
   return (
     <main className="main">
@@ -47,25 +48,31 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
         ))}
       </nav>
 
-      <section className="card timeline section">
-        {news.map((item) => (
-          <article className="timeline-item" key={item.id}>
-            <time>{item.time}</time>
-            <div>
-              {item.url ? (
-                <a href={item.url} target="_blank" rel="noopener noreferrer">
+      <section className="section">
+        <div className="section-head section-title-row">
+          <h2>뉴스</h2>
+          <span className="badge">최신 {visibleNews.length}개</span>
+        </div>
+        <div className="card timeline">
+          {visibleNews.map((item) => (
+            <article className="timeline-item" key={item.id}>
+              <time>{item.time}</time>
+              <div>
+                {item.url ? (
+                  <a href={item.url} target="_blank" rel="noopener noreferrer">
+                    <h2>{item.title}</h2>
+                  </a>
+                ) : (
                   <h2>{item.title}</h2>
-                </a>
-              ) : (
-                <h2>{item.title}</h2>
-              )}
-              <div className="tag-row">
-                <span className="badge">{item.category}</span>
-                {item.tags.map((tag) => <span className="badge" key={tag}>{tag}</span>)}
+                )}
+                <div className="tag-row">
+                  <span className="badge">{item.category}</span>
+                  {item.tags.map((tag) => <span className="badge" key={tag}>{tag}</span>)}
+                </div>
               </div>
-            </div>
-          </article>
-        ))}
+            </article>
+          ))}
+        </div>
       </section>
     </main>
   );
