@@ -6,6 +6,7 @@ export type Indicator = {
   previous: string;
   releaseDate: string;
   description: string;
+  source: string;
 };
 
 export type IndicatorPoint = {
@@ -14,166 +15,182 @@ export type IndicatorPoint = {
   mom: number;
 };
 
-const DESCRIPTIONS: Record<string, string> = {
-  cpi: "소비자물가지수는 가계가 구매하는 상품과 서비스 가격 변화를 보여줍니다.",
-  ppi: "생산자물가지수는 기업 판매 가격의 변화를 통해 향후 소비자물가 압력을 가늠하게 합니다.",
-  fomc: "연준의 기준금리 결정과 점도표, 기자회견은 금리와 성장주 할인율에 직접 영향을 줍니다.",
-  payrolls: "고용 증가 속도는 경기와 임금 압력, 연준 정책 기대를 동시에 움직입니다.",
-  unemployment: "실업률은 노동시장 냉각 여부를 확인하는 대표 지표입니다.",
-  "retail-sales": "소비 모멘텀을 보여주며 경기 민감주와 금리 기대에 영향을 줍니다.",
+type FredPoint = {
+  date: string;
+  value: number;
 };
 
-const NEXT_RELEASE: Record<string, string> = {
-  cpi: "2026-07-15",
-  ppi: "2026-07-16",
-  fomc: "2026-07-29",
-  payrolls: "2026-07-07",
-  unemployment: "2026-07-07",
-  "retail-sales": "2026-07-17",
+type IndicatorConfig = {
+  slug: string;
+  name: string;
+  fredSeries: string;
+  kind: "index-yoy" | "monthly-change" | "rate" | "level" | "target-rate";
+  description: string;
 };
 
-const MOCK_INDICATORS: Indicator[] = [
-  { slug: "cpi", name: "미국 CPI", latest: "2.4%", forecast: "—", previous: "2.3%", releaseDate: NEXT_RELEASE.cpi, description: DESCRIPTIONS.cpi },
-  { slug: "ppi", name: "미국 PPI", latest: "2.6%", forecast: "—", previous: "2.4%", releaseDate: NEXT_RELEASE.ppi, description: DESCRIPTIONS.ppi },
-  { slug: "fomc", name: "FOMC", latest: "4.25–4.50%", forecast: "동결", previous: "4.25–4.50%", releaseDate: NEXT_RELEASE.fomc, description: DESCRIPTIONS.fomc },
-  { slug: "payrolls", name: "비농업 고용", latest: "164K", forecast: "—", previous: "139K", releaseDate: NEXT_RELEASE.payrolls, description: DESCRIPTIONS.payrolls },
-  { slug: "unemployment", name: "실업률", latest: "4.1%", forecast: "—", previous: "4.2%", releaseDate: NEXT_RELEASE.unemployment, description: DESCRIPTIONS.unemployment },
-  { slug: "retail-sales", name: "소매판매", latest: "0.3%", forecast: "—", previous: "-0.1%", releaseDate: NEXT_RELEASE["retail-sales"], description: DESCRIPTIONS["retail-sales"] },
+export const INDICATOR_CONFIGS: IndicatorConfig[] = [
+  {
+    slug: "cpi",
+    name: "미국 CPI",
+    fredSeries: "CPIAUCSL",
+    kind: "index-yoy",
+    description: "소비자물가지수는 가계가 구매하는 상품과 서비스 가격 변화를 보여줍니다.",
+  },
+  {
+    slug: "ppi",
+    name: "미국 PPI",
+    fredSeries: "PPIACO",
+    kind: "index-yoy",
+    description: "생산자물가지수는 기업 판매 가격의 변화를 통해 향후 소비자물가 압력을 가늠하게 합니다.",
+  },
+  {
+    slug: "fomc",
+    name: "FOMC",
+    fredSeries: "DFEDTARU",
+    kind: "target-rate",
+    description: "연준의 기준금리 결정과 점도표, 기자회견은 금리와 성장주 할인율에 직접 영향을 줍니다.",
+  },
+  {
+    slug: "payrolls",
+    name: "비농업 고용",
+    fredSeries: "PAYEMS",
+    kind: "monthly-change",
+    description: "고용 증가 속도는 경기와 임금 압력, 연준 정책 기대를 동시에 움직입니다.",
+  },
+  {
+    slug: "unemployment",
+    name: "실업률",
+    fredSeries: "UNRATE",
+    kind: "rate",
+    description: "실업률은 노동시장 냉각 여부를 확인하는 대표 지표입니다.",
+  },
+  {
+    slug: "retail-sales",
+    name: "소매판매",
+    fredSeries: "RSAFS",
+    kind: "index-yoy",
+    description: "소비 모멘텀을 보여주며 경기 민감주와 금리 기대에 영향을 줍니다.",
+  },
 ];
 
-type BlsSeries = { seriesID: string; data: { year: string; period: string; value: string }[] };
+const KR_MONTHS = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
 
-async function fetchBls(): Promise<BlsSeries[]> {
+function toPercent(value: number, signed = false) {
+  const prefix = signed && value > 0 ? "+" : "";
+  return `${prefix}${value.toFixed(1)}%`;
+}
+
+function toDateLabel(date: string) {
+  return date.slice(0, 7);
+}
+
+function toMonthLabel(date: string) {
+  const month = Number(date.slice(5, 7));
+  return KR_MONTHS[month - 1] ?? date.slice(5, 7);
+}
+
+async function fetchFredSeries(seriesId: string): Promise<FredPoint[]> {
   try {
-    const res = await fetch("https://api.bls.gov/publicAPI/v1/timeseries/data/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        seriesid: ["CUUR0000SA0", "WPUFD49207", "LNS14000000", "CES0000000001"],
-        startyear: String(new Date().getFullYear() - 1),
-        endyear: String(new Date().getFullYear()),
-      }),
-      next: { revalidate: 3600 },
+    const res = await fetch(`https://fred.stlouisfed.org/graph/fredgraph.csv?id=${seriesId}`, {
+      next: { revalidate: 60 * 60 },
     });
+
     if (!res.ok) return [];
-    const json = await res.json() as { Results: { series: BlsSeries[] } };
-    return json.Results.series;
+
+    const text = await res.text();
+    return text
+      .trim()
+      .split("\n")
+      .slice(1)
+      .map((line) => {
+        const [date, rawValue] = line.split(",");
+        const value = Number(rawValue);
+        return { date, value };
+      })
+      .filter((point) => point.date && Number.isFinite(point.value));
   } catch {
     return [];
   }
 }
 
-function toTargetRange(effectiveRate: number): string {
-  const lower = Math.floor(effectiveRate / 0.25) * 0.25;
-  const upper = lower + 0.25;
-  return `${lower.toFixed(2)}–${upper.toFixed(2)}%`;
+function previousPoint(points: FredPoint[], point: FredPoint, offset: number) {
+  const index = points.findIndex((candidate) => candidate.date === point.date);
+  return index >= offset ? points[index - offset] : undefined;
 }
 
-async function fetchFomcRate(): Promise<{ latest: string; previous: string } | null> {
-  try {
-    const res = await fetch("https://fred.stlouisfed.org/graph/fredgraph.csv?id=FEDFUNDS", {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return null;
-    const text = await res.text();
-    const rows = text.trim().split("\n").slice(1).reverse();
-    const parse = (row: string) => {
-      const val = parseFloat(row.split(",")[1]);
-      return isNaN(val) ? null : val;
-    };
-    const latest = parse(rows[0]);
-    const previous = parse(rows[1]);
-    if (!latest) return null;
-    return {
-      latest: toTargetRange(latest),
-      previous: previous ? toTargetRange(previous) : "—",
-    };
-  } catch {
-    return null;
+function yearAgoPoint(points: FredPoint[], point: FredPoint) {
+  const yearAgoDate = `${Number(point.date.slice(0, 4)) - 1}${point.date.slice(4)}`;
+  return points.find((candidate) => candidate.date === yearAgoDate);
+}
+
+function calcIndexYoY(points: FredPoint[], point: FredPoint) {
+  const yearAgo = yearAgoPoint(points, point);
+  if (!yearAgo) return null;
+  return ((point.value / yearAgo.value) - 1) * 100;
+}
+
+function calcIndexMoM(points: FredPoint[], point: FredPoint) {
+  const prev = previousPoint(points, point, 1);
+  if (!prev) return null;
+  return ((point.value / prev.value) - 1) * 100;
+}
+
+function latestSummary(config: IndicatorConfig, points: FredPoint[]): Pick<Indicator, "latest" | "previous" | "releaseDate"> {
+  const latest = points.at(-1);
+  const previous = points.at(-2);
+
+  if (!latest) {
+    return { latest: "데이터 없음", previous: "데이터 없음", releaseDate: "확인 필요" };
   }
-}
 
-function blsPoints(series: BlsSeries): { key: string; value: number }[] {
-  return series.data
-    .filter((r) => r.period !== "M13" && r.value !== "-")
-    .map((r) => ({ key: r.year + r.period, value: parseFloat(r.value) }))
-    .filter((r) => !isNaN(r.value))
-    .sort((a, b) => a.key.localeCompare(b.key));
-}
+  if (config.kind === "index-yoy") {
+    const latestYoY = calcIndexYoY(points, latest);
+    const prevYoY = previous ? calcIndexYoY(points, previous) : null;
+    return {
+      latest: latestYoY === null ? "데이터 없음" : toPercent(latestYoY),
+      previous: prevYoY === null ? "데이터 없음" : toPercent(prevYoY),
+      releaseDate: toDateLabel(latest.date),
+    };
+  }
 
-function calcYoY(points: { key: string; value: number }[]): { latest: string; previous: string } {
-  if (points.length < 2) return { latest: "—", previous: "—" };
-  const latest = points[points.length - 1];
-  const prevMonth = points[points.length - 2];
-  const yearAgoKey = String(parseInt(latest.key.slice(0, 4)) - 1) + latest.key.slice(4);
-  const yearAgo = points.find((p) => p.key === yearAgoKey);
-  const prevYearAgoKey = String(parseInt(prevMonth.key.slice(0, 4)) - 1) + prevMonth.key.slice(4);
-  const prevYearAgo = points.find((p) => p.key === prevYearAgoKey);
+  if (config.kind === "monthly-change") {
+    const prev = previousPoint(points, latest, 1);
+    const prevPrev = previous ? previousPoint(points, previous, 1) : undefined;
+    const latestChange = prev ? latest.value - prev.value : null;
+    const previousChange = previous && prevPrev ? previous.value - prevPrev.value : null;
+    return {
+      latest: latestChange === null ? "데이터 없음" : `${Math.round(latestChange)}K`,
+      previous: previousChange === null ? "데이터 없음" : `${Math.round(previousChange)}K`,
+      releaseDate: toDateLabel(latest.date),
+    };
+  }
 
-  const fmt = (v: number) => `${v.toFixed(1)}%`;
+  if (config.kind === "target-rate") {
+    return {
+      latest: `${latest.value.toFixed(2)}%`,
+      previous: previous ? `${previous.value.toFixed(2)}%` : "데이터 없음",
+      releaseDate: latest.date,
+    };
+  }
+
   return {
-    latest: yearAgo ? fmt(((latest.value / yearAgo.value) - 1) * 100) : "—",
-    previous: prevYearAgo ? fmt(((prevMonth.value / prevYearAgo.value) - 1) * 100) : "—",
+    latest: config.kind === "rate" ? toPercent(latest.value) : latest.value.toLocaleString("en-US"),
+    previous: previous ? (config.kind === "rate" ? toPercent(previous.value) : previous.value.toLocaleString("en-US")) : "데이터 없음",
+    releaseDate: toDateLabel(latest.date),
   };
-}
-
-function calcMoM(points: { key: string; value: number }[]): { latest: string; previous: string } {
-  if (points.length < 3) return { latest: "—", previous: "—" };
-  const [p2, p1, p0] = points.slice(-3);
-  const fmt = (v: number) => `${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;
-  return {
-    latest: fmt(((p0.value / p1.value) - 1) * 100),
-    previous: fmt(((p1.value / p2.value) - 1) * 100),
-  };
-}
-
-function calcNfp(points: { key: string; value: number }[]): { latest: string; previous: string } {
-  if (points.length < 3) return { latest: "—", previous: "—" };
-  const [p2, p1, p0] = points.slice(-3);
-  const fmt = (v: number) => `${Math.round(v)}K`;
-  return {
-    latest: fmt(p0.value - p1.value),
-    previous: fmt(p1.value - p2.value),
-  };
-}
-
-function calcRate(points: { key: string; value: number }[]): { latest: string; previous: string } {
-  if (points.length < 2) return { latest: "—", previous: "—" };
-  const [p1, p0] = points.slice(-2);
-  const fmt = (v: number) => `${v.toFixed(1)}%`;
-  return { latest: fmt(p0.value), previous: fmt(p1.value) };
 }
 
 export async function getIndicators(): Promise<Indicator[]> {
-  const [blsSeries, fomc] = await Promise.all([fetchBls(), fetchFomcRate()]);
+  const allPoints = await Promise.all(INDICATOR_CONFIGS.map((config) => fetchFredSeries(config.fredSeries)));
 
-  if (blsSeries.length === 0 && !fomc) return MOCK_INDICATORS;
-
-  const byId = Object.fromEntries(blsSeries.map((s) => [s.seriesID, blsPoints(s)]));
-  const cpiPts = byId["CUUR0000SA0"] ?? [];
-  const ppiPts = byId["WPUFD49207"] ?? [];
-  const unPts = byId["LNS14000000"] ?? [];
-  const nfpPts = byId["CES0000000001"] ?? [];
-
-  const cpi = calcYoY(cpiPts);
-  const ppi = calcYoY(ppiPts);
-  const un = calcRate(unPts);
-  const nfp = calcNfp(nfpPts);
-
-  return [
-    { slug: "cpi", name: "미국 CPI", ...cpi, forecast: "—", releaseDate: NEXT_RELEASE.cpi, description: DESCRIPTIONS.cpi },
-    { slug: "ppi", name: "미국 PPI", ...ppi, forecast: "—", releaseDate: NEXT_RELEASE.ppi, description: DESCRIPTIONS.ppi },
-    {
-      slug: "fomc", name: "FOMC",
-      latest: fomc?.latest ?? MOCK_INDICATORS[2].latest,
-      forecast: "동결",
-      previous: fomc?.previous ?? MOCK_INDICATORS[2].previous,
-      releaseDate: NEXT_RELEASE.fomc, description: DESCRIPTIONS.fomc,
-    },
-    { slug: "payrolls", name: "비농업 고용", ...nfp, forecast: "—", releaseDate: NEXT_RELEASE.payrolls, description: DESCRIPTIONS.payrolls },
-    { slug: "unemployment", name: "실업률", ...un, forecast: "—", releaseDate: NEXT_RELEASE.unemployment, description: DESCRIPTIONS.unemployment },
-    MOCK_INDICATORS[5],
-  ];
+  return INDICATOR_CONFIGS.map((config, index) => ({
+    slug: config.slug,
+    name: config.name,
+    forecast: "컨센서스 별도 확인",
+    description: config.description,
+    source: `FRED:${config.fredSeries}`,
+    ...latestSummary(config, allPoints[index] ?? []),
+  }));
 }
 
 export async function getIndicator(slug: string): Promise<Indicator | undefined> {
@@ -181,51 +198,35 @@ export async function getIndicator(slug: string): Promise<Indicator | undefined>
   return all.find((item) => item.slug === slug);
 }
 
-const BLS_SERIES: Partial<Record<string, string>> = {
-  cpi: "CUUR0000SA0",
-  ppi: "WPUFD49207",
-};
-
-const KR_MONTHS = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
-
 export async function getIndicatorHistory(slug: string): Promise<IndicatorPoint[]> {
-  const seriesId = BLS_SERIES[slug];
-  if (!seriesId) return [];
+  const config = INDICATOR_CONFIGS.find((item) => item.slug === slug);
+  if (!config) return [];
 
-  try {
-    const currentYear = new Date().getFullYear();
-    const res = await fetch("https://api.bls.gov/publicAPI/v1/timeseries/data/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        seriesid: [seriesId],
-        startyear: String(currentYear - 2),
-        endyear: String(currentYear),
-      }),
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return [];
+  const points = await fetchFredSeries(config.fredSeries);
+  const recent = points.slice(-24);
 
-    const json = await res.json() as { Results: { series: BlsSeries[] } };
-    const pts = blsPoints(json.Results.series[0]).filter(
-      (p) => p.key.slice(4) !== "M13"
-    );
-
-    const recent = pts.slice(-12);
-    return recent.map((pt, i) => {
-      const prevPt = i > 0 ? recent[i - 1] : null;
-      const yearAgoKey = String(parseInt(pt.key.slice(0, 4)) - 1) + pt.key.slice(4);
-      const yearAgo = pts.find((p) => p.key === yearAgoKey);
-      const monthIdx = parseInt(pt.key.slice(5, 7)) - 1;
-      const yoy = yearAgo ? (pt.value / yearAgo.value - 1) * 100 : 0;
-      const mom = prevPt ? (pt.value / prevPt.value - 1) * 100 : 0;
+  return recent.slice(-12).map((point) => {
+    if (config.kind === "index-yoy") {
       return {
-        month: KR_MONTHS[monthIdx],
-        yoy: parseFloat(yoy.toFixed(2)),
-        mom: parseFloat(mom.toFixed(2)),
+        month: toMonthLabel(point.date),
+        yoy: Number((calcIndexYoY(points, point) ?? 0).toFixed(2)),
+        mom: Number((calcIndexMoM(points, point) ?? 0).toFixed(2)),
       };
-    });
-  } catch {
-    return [];
-  }
+    }
+
+    if (config.kind === "monthly-change") {
+      const change = previousPoint(points, point, 1);
+      return {
+        month: toMonthLabel(point.date),
+        yoy: change ? Math.round(point.value - change.value) : 0,
+        mom: point.value,
+      };
+    }
+
+    return {
+      month: toMonthLabel(point.date),
+      yoy: point.value,
+      mom: previousPoint(points, point, 1)?.value ?? point.value,
+    };
+  });
 }
