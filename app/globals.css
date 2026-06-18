@@ -874,6 +874,15 @@ th {
   font-weight: 900;
 }
 
+.ranking-empty {
+  display: grid;
+  min-height: 218px;
+  place-items: center;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.6;
+}
+
 .news-stack article {
   display: grid;
   gap: 5px;

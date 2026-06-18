@@ -4,9 +4,10 @@ type MarketRankingProps = {
   title: string;
   quotes: MarketQuote[];
   direction: "up" | "down";
+  emptyText?: string;
 };
 
-export function MarketRanking({ title, quotes, direction }: MarketRankingProps) {
+export function MarketRanking({ title, quotes, direction, emptyText = "표시할 데이터가 없습니다." }: MarketRankingProps) {
   const ranked = [...quotes]
     .filter((quote) => direction === "up" ? quote.changePercent > 0 : quote.changePercent < 0)
     .sort((a, b) => direction === "up" ? b.changePercent - a.changePercent : a.changePercent - b.changePercent)
@@ -19,6 +20,9 @@ export function MarketRanking({ title, quotes, direction }: MarketRankingProps) 
         <span className="badge">TOP 5</span>
       </div>
       <div className="ranking-list">
+        {ranked.length === 0 ? (
+          <div className="ranking-empty">{emptyText}</div>
+        ) : null}
         {ranked.map((quote, index) => {
           const quoteDirection = directionOf(quote.change);
           return (
