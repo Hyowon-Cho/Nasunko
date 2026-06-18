@@ -6,7 +6,7 @@ import type { LoungeComment } from "@/lib/lounge";
 
 export function CommentBox({ postId }: { postId: string }) {
   const [comments, setComments] = useState<LoungeComment[]>([]);
-  const [user, setUser] = useState<{ nickname: string } | null>(null);
+  const [user, setUser] = useState<{ nickname: string; role?: "user" | "admin" } | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [body, setBody] = useState("");
   const [error, setError] = useState("");
@@ -22,7 +22,7 @@ export function CommentBox({ postId }: { postId: string }) {
       .catch(() => {});
 
     fetch("/api/auth/me")
-      .then((res) => res.ok ? res.json() as Promise<{ user: { nickname: string } | null }> : { user: null })
+      .then((res) => res.ok ? res.json() as Promise<{ user: { nickname: string; role?: "user" | "admin" } | null }> : { user: null })
       .then((data) => {
         setUser(data.user);
         setAuthReady(true);
@@ -53,6 +53,21 @@ export function CommentBox({ postId }: { postId: string }) {
     setBody("");
   }
 
+  async function deleteComment(commentId: number) {
+    if (!window.confirm("댓글을 삭제할까요?")) return;
+
+    const res = await fetch(`/api/posts/${postId}/comments/${commentId}`, {
+      method: "DELETE"
+    });
+
+    if (!res.ok) {
+      setError("댓글 삭제에 실패했습니다.");
+      return;
+    }
+
+    setComments((current) => current.filter((comment) => comment.id !== commentId));
+  }
+
   return (
     <section className="lounge-comments">
       <h2>댓글 {comments.length}</h2>
@@ -62,7 +77,12 @@ export function CommentBox({ postId }: { postId: string }) {
         <div className="comment-list">
           {comments.map((comment) => (
             <article className="comment-item" key={comment.id}>
-              <strong>{comment.nickname}</strong>
+              <div className="comment-head">
+                <strong>{comment.nickname}</strong>
+                {user?.role === "admin" ? (
+                  <button type="button" onClick={() => deleteComment(comment.id)}>삭제</button>
+                ) : null}
+              </div>
               <p>{comment.body}</p>
             </article>
           ))}

@@ -1530,6 +1530,25 @@ th {
   color: var(--lounge-text);
 }
 
+.comment-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.comment-head button {
+  height: 26px;
+  padding: 0 9px;
+  border: 1px solid rgba(240, 68, 82, 0.25);
+  border-radius: 999px;
+  background: rgba(240, 68, 82, 0.08);
+  color: #f04452;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 .comment-item p {
   margin: 6px 0 0;
   color: var(--lounge-soft);
