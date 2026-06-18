@@ -13,12 +13,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   if (!indicator) {
     return {
-      title: "나선코 - 경제지표",
+      title: "나선코 경제지표",
     };
   }
 
   return {
-    title: `나선코 - ${indicator.name} 상세`,
+    title: `나선코 ${indicator.name} 상세`,
     description: `${indicator.name} 최신 발표값, 이전치와 나스닥의 관계를 확인하세요.`,
   };
 }

@@ -4,7 +4,7 @@ import { getIndicators } from "@/lib/indicators";
 import { getNews, newsCategories, type NewsCategory } from "@/lib/news";
 
 export const metadata: Metadata = {
-  title: "나선코 - 피드",
+  title: "나선코 피드",
   description: "미국 경제지표, FOMC, 빅테크, 반도체, 환율, 금리 뉴스를 한 곳에서 확인하세요."
 };
 
