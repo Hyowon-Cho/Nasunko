@@ -31,6 +31,15 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const existingNickname = await query(
+      `SELECT id FROM users WHERE LOWER(nickname) = LOWER($1) LIMIT 1`,
+      [cleanNickname],
+    );
+
+    if (existingNickname.rows.length > 0) {
+      return NextResponse.json({ error: "이미 사용 중인 닉네임입니다." }, { status: 409 });
+    }
+
     const id = randomUUID();
     const passwordHash = hashPassword(password);
     const role = isAdminEmail(cleanEmail) ? "admin" : "user";
@@ -49,7 +58,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ user: rows[0] });
   } catch (error) {
     if (error instanceof Error && (error as PostgresError).code === "23505") {
-      return NextResponse.json({ error: "이미 가입된 이메일입니다." }, { status: 409 });
+      const message = error.message.includes("users_nickname_lower_unique")
+        ? "이미 사용 중인 닉네임입니다."
+        : "이미 가입된 이메일입니다.";
+      return NextResponse.json({ error: message }, { status: 409 });
     }
 
     return databaseErrorResponse(error);

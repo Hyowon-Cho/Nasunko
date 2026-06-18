@@ -63,7 +63,13 @@ export function LoungeList() {
               <div className="post-card-topic">라운지</div>
               <h2>{post.title}</h2>
               <p className="post-excerpt">{makeExcerpt(post.content ?? "")}</p>
-              <p className="post-meta">{post.author} · {post.date}</p>
+              <p className="post-meta">
+                <span className="author-inline">
+                  {post.author}
+                  {post.author_role === "admin" ? <span className="admin-badge">관리자</span> : null}
+                </span>
+                <span>· {post.date}</span>
+              </p>
             </div>
             {post.image_url ? (
               <img className="post-thumb" src={post.image_url} alt="" />

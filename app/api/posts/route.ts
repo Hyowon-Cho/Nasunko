@@ -9,11 +9,13 @@ export async function GET() {
     const user = await getCurrentUser();
     const { rows } = await query(`
     SELECT p.id, p.title, p.author, p.date, p.content, p.image_url, p.views, p.likes, p.created_at,
+           COALESCE(author_user.role, 'user') AS author_role,
            COUNT(c.id)::int AS comments,
            CASE WHEN $2 = true OR (p.user_id IS NOT NULL AND p.user_id = $1) THEN true ELSE false END AS is_owner
     FROM posts p
+    LEFT JOIN users author_user ON author_user.id = p.user_id
     LEFT JOIN comments c ON c.post_id = p.id
-    GROUP BY p.id
+    GROUP BY p.id, author_user.role
     ORDER BY p.created_at DESC
   `, [user?.id ?? null, isAdmin(user)]);
     return NextResponse.json(rows);

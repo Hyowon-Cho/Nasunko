@@ -13,12 +13,14 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
     const { rows } = await query(
       `
     SELECT p.id, p.title, p.author, p.date, p.content, p.image_url, p.views, p.likes,
+           COALESCE(author_user.role, 'user') AS author_role,
            COUNT(c.id)::int AS comments,
            CASE WHEN $3 = true OR (p.user_id IS NOT NULL AND p.user_id = $2) THEN true ELSE false END AS is_owner
     FROM posts p
+    LEFT JOIN users author_user ON author_user.id = p.user_id
     LEFT JOIN comments c ON c.post_id = p.id
     WHERE p.id = $1
-    GROUP BY p.id
+    GROUP BY p.id, author_user.role
   `,
       [id, user?.id ?? null, isAdmin(user)],
     );

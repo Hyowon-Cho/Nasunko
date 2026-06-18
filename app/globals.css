@@ -1137,9 +1137,25 @@ th {
 }
 
 .post-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   margin-top: 10px !important;
   color: var(--lounge-muted);
   font-size: 13px;
+}
+
+.author-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.author-inline .admin-badge {
+  height: 20px;
+  padding: 0 7px;
+  font-size: 10px;
 }
 
 .post-thumb {

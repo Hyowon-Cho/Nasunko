@@ -118,7 +118,10 @@ export function LoungeDetail({ id }: { id: string }) {
         <header>
           <h1>{post.title}</h1>
           <div className="detail-meta">
-            <span>{post.author}</span>
+            <span className="author-inline">
+              {post.author}
+              {post.author_role === "admin" ? <span className="admin-badge">관리자</span> : null}
+            </span>
             <span>·</span>
             <span>{post.date}</span>
             <span className="detail-counters">조회 {post.views} · 좋아요 {post.likes} · 댓글 {post.comments}</span>

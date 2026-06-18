@@ -56,6 +56,29 @@ export async function GET() {
     await query(`ALTER TABLE posts ADD COLUMN IF NOT EXISTS user_id TEXT REFERENCES users(id) ON DELETE SET NULL`);
 
     const adminEmails = getAdminEmails();
+    await query(
+      `
+      WITH ranked_users AS (
+        SELECT
+          id,
+          ROW_NUMBER() OVER (
+            PARTITION BY LOWER(nickname)
+            ORDER BY
+              CASE WHEN LOWER(email) = ANY($1::text[]) THEN 0 ELSE 1 END,
+              created_at ASC,
+              id ASC
+          ) AS nickname_rank
+        FROM users
+      )
+      UPDATE users u
+      SET nickname = u.nickname || '-' || LEFT(u.id, 4)
+      FROM ranked_users r
+      WHERE u.id = r.id AND r.nickname_rank > 1
+    `,
+      [adminEmails],
+    );
+    await query(`CREATE UNIQUE INDEX IF NOT EXISTS users_nickname_lower_unique ON users (LOWER(nickname))`);
+
     const normalizedResult = await query(
       `UPDATE users SET role = 'user' WHERE LOWER(email) <> ALL($1::text[])`,
       [adminEmails],

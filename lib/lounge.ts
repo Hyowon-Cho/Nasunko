@@ -9,6 +9,7 @@ export type LoungePost = {
   content: string;
   image_url?: string;
   is_owner?: boolean;
+  author_role?: "user" | "admin";
 };
 
 export type LoungeComment = {
