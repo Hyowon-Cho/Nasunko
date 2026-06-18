@@ -9,8 +9,9 @@ export const metadata: Metadata = {
 export default function LoungeNewPage() {
   return (
     <main className="main lounge-main">
-      <section className="hero">
-        <h1 className="page-title">새 글 작성</h1>
+      <section className="lounge-editor-head">
+        <h1>새 글 작성</h1>
+        <p>제목과 내용을 적고 필요하면 사진을 첨부하세요.</p>
       </section>
       <LoungeEditor />
     </main>

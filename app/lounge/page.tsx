@@ -10,11 +10,20 @@ export const metadata: Metadata = {
 export default function LoungePage() {
   return (
     <main className="main lounge-main">
-      <section className="hero lounge-head">
+      <section className="lounge-hero">
         <div>
-          <h1 className="page-title"><span className="lounge-icon">▣</span> 라운지</h1>
+          <p className="lounge-kicker">나선코 라운지</p>
+          <h1>나스닥 투자자들이 이야기하는 곳</h1>
+          <p>빅테크, 반도체, 경제지표, 시장 흐름에 대한 생각을 가볍게 남겨보세요.</p>
         </div>
-        <Link className="button write-button" href="/lounge/new">✎ 새 글</Link>
+        <Link className="lounge-write-button" href="/lounge/new">글쓰기</Link>
+      </section>
+      <section className="lounge-tabs" aria-label="라운지 카테고리">
+        <span className="active">전체</span>
+        <span>나스닥</span>
+        <span>빅테크</span>
+        <span>반도체</span>
+        <span>경제지표</span>
       </section>
       <LoungeList />
     </main>

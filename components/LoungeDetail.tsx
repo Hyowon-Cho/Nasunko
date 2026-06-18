@@ -33,7 +33,9 @@ export function LoungeDetail({ id }: { id: string }) {
       })
       .catch(() => setIsReady(true));
 
-    setLiked(localStorage.getItem(`liked:${id}`) === "1");
+    window.setTimeout(() => {
+      setLiked(localStorage.getItem(`liked:${id}`) === "1");
+    }, 0);
   }, [id]);
 
   async function deletePost() {
@@ -109,6 +111,9 @@ export function LoungeDetail({ id }: { id: string }) {
 
   return (
     <main className="main lounge-detail-main">
+      <nav className="lounge-detail-nav">
+        <Link href="/lounge">라운지</Link>
+      </nav>
       <article className="lounge-detail">
         <header>
           <h1>{post.title}</h1>
@@ -116,7 +121,7 @@ export function LoungeDetail({ id }: { id: string }) {
             <span>{post.author}</span>
             <span>·</span>
             <span>{post.date}</span>
-            <span className="detail-counters">⊙ {post.views} ♡ {post.likes} 💬 {post.comments}</span>
+            <span className="detail-counters">조회 {post.views} · 좋아요 {post.likes} · 댓글 {post.comments}</span>
           </div>
         </header>
         {isEditing ? (

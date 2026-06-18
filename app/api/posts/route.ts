@@ -6,7 +6,7 @@ import { createPostId, formatToday } from "@/lib/lounge";
 export async function GET() {
   try {
     const { rows } = await query(`
-    SELECT p.id, p.title, p.author, p.date, p.views, p.likes, p.created_at,
+    SELECT p.id, p.title, p.author, p.date, p.content, p.image_url, p.views, p.likes, p.created_at,
            COUNT(c.id)::int AS comments
     FROM posts p
     LEFT JOIN comments c ON c.post_id = p.id
