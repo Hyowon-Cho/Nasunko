@@ -863,6 +863,39 @@ th {
   height: 280px;
 }
 
+.feed-indicator-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.feed-indicator-card {
+  display: grid;
+  gap: 8px;
+  min-height: 126px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025));
+}
+
+.feed-indicator-card span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.feed-indicator-card strong {
+  color: var(--text);
+  font-size: 26px;
+  line-height: 1;
+}
+
+.feed-indicator-card small {
+  color: var(--soft);
+  line-height: 1.5;
+}
+
 .filter-row {
   flex-wrap: wrap;
   gap: 8px;

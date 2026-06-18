@@ -10,8 +10,7 @@ export function Footer() {
       <div className="footer-links">
         <Link href="/nasdaq">나스닥</Link>
         <Link href="/big-tech">미국 빅테크</Link>
-        <Link href="/indicators">경제지표</Link>
-        <Link href="/news">실시간 뉴스룸</Link>
+        <Link href="/feed">피드</Link>
         <Link href="/lounge">라운지</Link>
       </div>
       <p className="notice">투자 판단의 책임은 본인에게 있습니다.</p>

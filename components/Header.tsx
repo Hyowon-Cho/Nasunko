@@ -7,14 +7,14 @@ import { useEffect, useState } from "react";
 const navItems = [
   { href: "/nasdaq", label: "나스닥" },
   { href: "/big-tech", label: "미국 빅테크" },
-  { href: "/indicators", label: "경제지표" },
-  { href: "/news", label: "실시간 뉴스룸" },
+  { href: "/feed", label: "피드" },
   { href: "/lounge", label: "라운지" }
 ];
 
 export function Header() {
   const pathname = usePathname();
   const [user, setUser] = useState<{ nickname: string } | null>(null);
+  const activePath = pathname?.startsWith("/indicators") || pathname?.startsWith("/news") ? "/feed" : pathname;
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -41,7 +41,7 @@ export function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className={pathname?.startsWith(item.href) ? "active" : ""}
+              className={activePath?.startsWith(item.href) ? "active" : ""}
             >
               {item.label}
             </Link>
