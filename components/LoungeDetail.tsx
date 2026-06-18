@@ -172,10 +172,10 @@ export function LoungeDetail({ id }: { id: string }) {
               <button type="button" onClick={likePost} disabled={liked} className={liked ? "liked-button" : ""}>
                 {liked ? "♥" : "♡"} {post.likes}
               </button>
-              <button type="button" onClick={() => setIsEditing(true)}>수정</button>
+              {post.is_owner ? <button type="button" onClick={() => setIsEditing(true)}>수정</button> : null}
             </>
           )}
-          <button className="danger-button" type="button" onClick={deletePost}>삭제</button>
+          {post.is_owner ? <button className="danger-button" type="button" onClick={deletePost}>삭제</button> : null}
         </div>
       </article>
       <CommentBox postId={id} />

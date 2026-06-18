@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const navItems = [
   { href: "/nasdaq", label: "나스닥" },
@@ -13,6 +14,20 @@ const navItems = [
 
 export function Header() {
   const pathname = usePathname();
+  const [user, setUser] = useState<{ nickname: string } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => res.ok ? res.json() as Promise<{ user: { nickname: string } | null }> : { user: null })
+      .then((data) => setUser(data.user))
+      .catch(() => setUser(null));
+  }, [pathname]);
+
+  async function logout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    setUser(null);
+    window.location.href = "/lounge";
+  }
 
   return (
     <header className="header">
@@ -33,10 +48,17 @@ export function Header() {
           ))}
         </nav>
         <div className="header-right">
-          <span className="live-pill">
-            <span className="live-dot" />
-            Live
-          </span>
+          {user ? (
+            <div className="auth-header">
+              <span>{user.nickname}</span>
+              <button type="button" onClick={logout}>로그아웃</button>
+            </div>
+          ) : (
+            <div className="auth-header">
+              <Link href="/login">로그인</Link>
+              <Link className="auth-header-primary" href="/signup">회원가입</Link>
+            </div>
+          )}
         </div>
       </div>
     </header>

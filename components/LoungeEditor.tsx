@@ -1,19 +1,31 @@
 "use client";
 
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export function LoungeEditor() {
   const router = useRouter();
   const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
+  const [user, setUser] = useState<{ nickname: string } | null>(null);
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => res.ok ? res.json() as Promise<{ user: { nickname: string } | null }> : { user: null })
+      .then((data) => {
+        setUser(data.user);
+        setAuthReady(true);
+      })
+      .catch(() => setAuthReady(true));
+  }, []);
 
   async function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -62,7 +74,7 @@ export function LoungeEditor() {
       const res = await fetch("/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: title.trim(), author: author.trim(), content: content.trim(), image_url: imageUrl })
+        body: JSON.stringify({ title: title.trim(), content: content.trim(), image_url: imageUrl })
       });
       const data = await res.json() as { id?: string; error?: string };
 
@@ -81,15 +93,25 @@ export function LoungeEditor() {
     }
   }
 
+  if (authReady && !user) {
+    return (
+      <section className="auth-required-card">
+        <h2>로그인이 필요합니다.</h2>
+        <p>라운지 글 작성은 로그인한 회원만 할 수 있어요.</p>
+        <div>
+          <Link className="lounge-write-button" href="/login">로그인</Link>
+          <Link className="button" href="/signup">회원가입</Link>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <form className="lounge-editor card" onSubmit={onSubmit}>
+      {user ? <p className="editor-user">작성자 {user.nickname}</p> : null}
       <label>
         <span>제목</span>
         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목을 입력하세요" />
-      </label>
-      <label>
-        <span>작성자</span>
-        <input value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="닉네임 (없으면 익명)" />
       </label>
       <label>
         <span>내용</span>

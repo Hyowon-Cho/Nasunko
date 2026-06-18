@@ -72,17 +72,19 @@ export function LoungeList() {
               <span>♡ {post.likes}</span>
               <span>💬 {post.comments}</span>
               <span>⊙ {post.views}</span>
-              <button
-                className="text-danger-button"
-                type="button"
-                onClick={(event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  deletePost(post.id);
-                }}
-              >
-                삭제
-              </button>
+              {post.is_owner ? (
+                <button
+                  className="text-danger-button"
+                  type="button"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    deletePost(post.id);
+                  }}
+                >
+                  삭제
+                </button>
+              ) : null}
             </div>
           </Link>
         ))}

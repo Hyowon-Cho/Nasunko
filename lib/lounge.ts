@@ -8,6 +8,7 @@ export type LoungePost = {
   comments: number;
   content: string;
   image_url?: string;
+  is_owner?: boolean;
 };
 
 export type LoungeComment = {
