@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { databaseErrorResponse } from "@/lib/api-error";
+import { getCurrentUser } from "@/lib/auth";
 import { query } from "@/lib/db";
 
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -22,10 +23,15 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { nickname, body } = await request.json() as { nickname?: string; body?: string };
+  const user = await getCurrentUser();
+  const { body } = await request.json() as { body?: string };
 
-  if (!nickname?.trim() || !body?.trim()) {
-    return NextResponse.json({ error: "닉네임과 댓글을 입력하세요" }, { status: 400 });
+  if (!user) {
+    return NextResponse.json({ error: "로그인 후 댓글을 작성할 수 있습니다." }, { status: 401 });
+  }
+
+  if (!body?.trim()) {
+    return NextResponse.json({ error: "댓글을 입력하세요" }, { status: 400 });
   }
 
   try {
@@ -35,7 +41,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     VALUES ($1, $2, $3)
     RETURNING id, nickname, body, created_at
   `,
-      [id, nickname.trim(), body.trim()],
+      [id, user.nickname, body.trim()],
     );
 
     return NextResponse.json(rows[0]);

@@ -1530,7 +1530,6 @@ th {
   background: var(--lounge-panel);
 }
 
-.comment-form input,
 .comment-form textarea {
   width: 100%;
   border: 1px solid var(--lounge-line);
@@ -1540,15 +1539,17 @@ th {
   outline: none;
 }
 
-.comment-form input {
-  height: 34px;
-  padding: 0 10px;
-}
-
 .comment-form textarea {
   min-height: 74px;
   padding: 10px;
   resize: vertical;
+}
+
+.comment-author {
+  margin: 0;
+  color: var(--lounge-muted);
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .comment-form button {
@@ -1558,6 +1559,22 @@ th {
   background: #3182f6;
   color: #fff;
   font-weight: 700;
+}
+
+.comment-login-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--lounge-line);
+  border-radius: 16px;
+  background: var(--lounge-panel);
+}
+
+.comment-login-box p {
+  margin: 0;
+  color: var(--lounge-muted);
 }
 
 .auth-main {

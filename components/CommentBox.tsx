@@ -1,32 +1,55 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import type { LoungeComment } from "@/lib/lounge";
 
 export function CommentBox({ postId }: { postId: string }) {
   const [comments, setComments] = useState<LoungeComment[]>([]);
-  const [nickname, setNickname] = useState("");
+  const [user, setUser] = useState<{ nickname: string } | null>(null);
+  const [authReady, setAuthReady] = useState(false);
   const [body, setBody] = useState("");
+  const [error, setError] = useState("");
+
+  function isComment(value: LoungeComment | { error?: string }): value is LoungeComment {
+    return "id" in value && "body" in value;
+  }
 
   useEffect(() => {
     fetch(`/api/posts/${postId}/comments`)
       .then((res) => res.json())
       .then((data: LoungeComment[]) => setComments(data))
       .catch(() => {});
+
+    fetch("/api/auth/me")
+      .then((res) => res.ok ? res.json() as Promise<{ user: { nickname: string } | null }> : { user: null })
+      .then((data) => {
+        setUser(data.user);
+        setAuthReady(true);
+      })
+      .catch(() => setAuthReady(true));
   }, [postId]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!nickname.trim() || !body.trim()) return;
+    if (!body.trim()) return;
+
+    setError("");
 
     const res = await fetch(`/api/posts/${postId}/comments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nickname: nickname.trim(), body: body.trim() })
+      body: JSON.stringify({ body: body.trim() })
     });
-    const data = await res.json() as LoungeComment;
+
+    const data = await res.json() as LoungeComment | { error?: string };
+
+    if (!res.ok || !isComment(data)) {
+      setError("error" in data ? data.error ?? "댓글 등록에 실패했습니다." : "댓글 등록에 실패했습니다.");
+      return;
+    }
+
     setComments((current) => [...current, data]);
-    setNickname("");
     setBody("");
   }
 
@@ -45,11 +68,19 @@ export function CommentBox({ postId }: { postId: string }) {
           ))}
         </div>
       )}
-      <form className="comment-form" onSubmit={onSubmit}>
-        <input value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="닉네임" aria-label="닉네임" />
-        <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="댓글을 입력하세요" aria-label="댓글" rows={4} />
-        <button className="button" type="submit">댓글 등록</button>
-      </form>
+      {authReady && !user ? (
+        <div className="comment-login-box">
+          <p>댓글을 작성하려면 로그인이 필요합니다.</p>
+          <Link className="button" href="/login">로그인</Link>
+        </div>
+      ) : (
+        <form className="comment-form" onSubmit={onSubmit}>
+          {user ? <p className="comment-author">작성자 {user.nickname}</p> : null}
+          <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="댓글을 입력하세요" aria-label="댓글" rows={4} />
+          {error ? <p className="form-error">{error}</p> : null}
+          <button className="button" type="submit">댓글 등록</button>
+        </form>
+      )}
     </section>
   );
 }
