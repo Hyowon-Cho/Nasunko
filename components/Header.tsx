@@ -10,14 +10,19 @@ const navItems = [
   { href: "/lounge", label: "라운지" }
 ];
 
+type HeaderUser = {
+  nickname: string;
+  role?: "user" | "admin";
+};
+
 export function Header() {
   const pathname = usePathname();
-  const [user, setUser] = useState<{ nickname: string } | null>(null);
+  const [user, setUser] = useState<HeaderUser | null>(null);
   const activePath = pathname?.startsWith("/indicators") || pathname?.startsWith("/news") ? "/feed" : pathname;
 
   useEffect(() => {
     fetch("/api/auth/me")
-      .then((res) => res.ok ? res.json() as Promise<{ user: { nickname: string } | null }> : { user: null })
+      .then((res) => res.ok ? res.json() as Promise<{ user: HeaderUser | null }> : { user: null })
       .then((data) => setUser(data.user))
       .catch(() => setUser(null));
   }, [pathname]);
@@ -50,6 +55,7 @@ export function Header() {
           {user ? (
             <div className="auth-header">
               <span>{user.nickname}</span>
+              {user.role === "admin" ? <span className="admin-badge">관리자</span> : null}
               <button type="button" onClick={logout}>로그아웃</button>
             </div>
           ) : (

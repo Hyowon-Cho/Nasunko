@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { databaseErrorResponse } from "@/lib/api-error";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, isAdmin } from "@/lib/auth";
 import { query } from "@/lib/db";
 import { createPostId, formatToday } from "@/lib/lounge";
 
@@ -10,12 +10,12 @@ export async function GET() {
     const { rows } = await query(`
     SELECT p.id, p.title, p.author, p.date, p.content, p.image_url, p.views, p.likes, p.created_at,
            COUNT(c.id)::int AS comments,
-           CASE WHEN p.user_id IS NOT NULL AND p.user_id = $1 THEN true ELSE false END AS is_owner
+           CASE WHEN $2 = true OR (p.user_id IS NOT NULL AND p.user_id = $1) THEN true ELSE false END AS is_owner
     FROM posts p
     LEFT JOIN comments c ON c.post_id = p.id
     GROUP BY p.id
     ORDER BY p.created_at DESC
-  `, [user?.id ?? null]);
+  `, [user?.id ?? null, isAdmin(user)]);
     return NextResponse.json(rows);
   } catch (error) {
     return databaseErrorResponse(error);

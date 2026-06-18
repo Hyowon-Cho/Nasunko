@@ -16,10 +16,11 @@ export async function POST(request: NextRequest) {
       id: string;
       email: string;
       nickname: string;
+      role: "user" | "admin";
       password_hash: string;
     }>(
       `
-      SELECT id, email, nickname, password_hash
+      SELECT id, email, nickname, role, password_hash
       FROM users
       WHERE email = $1
       LIMIT 1
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
     await createSession(user.id);
 
     return NextResponse.json({
-      user: { id: user.id, email: user.email, nickname: user.nickname },
+      user: { id: user.id, email: user.email, nickname: user.nickname, role: user.role },
     });
   } catch (error) {
     return databaseErrorResponse(error);

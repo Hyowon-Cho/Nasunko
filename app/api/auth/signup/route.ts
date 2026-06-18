@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { databaseErrorResponse } from "@/lib/api-error";
-import { createSession, hashPassword } from "@/lib/auth";
+import { createSession, hashPassword, isAdminEmail } from "@/lib/auth";
 import { query } from "@/lib/db";
 
 type PostgresError = Error & {
@@ -33,14 +33,15 @@ export async function POST(request: NextRequest) {
   try {
     const id = randomUUID();
     const passwordHash = hashPassword(password);
+    const role = isAdminEmail(cleanEmail) ? "admin" : "user";
 
-    const { rows } = await query<{ id: string; email: string; nickname: string }>(
+    const { rows } = await query<{ id: string; email: string; nickname: string; role: string }>(
       `
-      INSERT INTO users (id, email, nickname, password_hash)
-      VALUES ($1, $2, $3, $4)
-      RETURNING id, email, nickname
+      INSERT INTO users (id, email, nickname, password_hash, role)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id, email, nickname, role
     `,
-      [id, cleanEmail, cleanNickname, passwordHash],
+      [id, cleanEmail, cleanNickname, passwordHash, role],
     );
 
     await createSession(id);

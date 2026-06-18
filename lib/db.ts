@@ -19,8 +19,11 @@ function createPool() {
     throw new Error("DATABASE_URL still contains placeholder values. Replace USER, PASSWORD, AWS_RDS_HOST, and DB_NAME with your real PostgreSQL connection details.");
   }
 
+  const databaseUrl = new URL(connectionString);
+  databaseUrl.searchParams.delete("sslmode");
+
   return new Pool({
-    connectionString,
+    connectionString: databaseUrl.toString(),
     ssl: { rejectUnauthorized: false },
   });
 }

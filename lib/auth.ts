@@ -4,12 +4,32 @@ import { query } from "@/lib/db";
 
 const SESSION_COOKIE = "nasunko_session";
 const SESSION_MAX_AGE = 60 * 60 * 24 * 30;
+const DEFAULT_ADMIN_EMAILS = ["baltimorecho@gmail.com"];
 
 export type AuthUser = {
   id: string;
   email: string;
   nickname: string;
+  role: "user" | "admin";
 };
+
+export function getAdminEmails() {
+  return Array.from(new Set([
+    ...DEFAULT_ADMIN_EMAILS,
+    ...(process.env.ADMIN_EMAILS ?? "")
+      .split(",")
+      .map((item) => item.trim().toLowerCase())
+      .filter(Boolean),
+  ]));
+}
+
+export function isAdminEmail(email: string) {
+  return getAdminEmails().includes(email.trim().toLowerCase());
+}
+
+export function isAdmin(user: AuthUser | null | undefined) {
+  return user?.role === "admin";
+}
 
 function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
@@ -72,7 +92,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
 
   const { rows } = await query<AuthUser>(
     `
-    SELECT u.id, u.email, u.nickname
+    SELECT u.id, u.email, u.nickname, u.role
     FROM sessions s
     JOIN users u ON u.id = s.user_id
     WHERE s.token_hash = $1 AND s.expires_at > NOW()

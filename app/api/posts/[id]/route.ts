@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { databaseErrorResponse } from "@/lib/api-error";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, isAdmin } from "@/lib/auth";
 import { query } from "@/lib/db";
 
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -14,13 +14,13 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
       `
     SELECT p.id, p.title, p.author, p.date, p.content, p.image_url, p.views, p.likes,
            COUNT(c.id)::int AS comments,
-           CASE WHEN p.user_id IS NOT NULL AND p.user_id = $2 THEN true ELSE false END AS is_owner
+           CASE WHEN $3 = true OR (p.user_id IS NOT NULL AND p.user_id = $2) THEN true ELSE false END AS is_owner
     FROM posts p
     LEFT JOIN comments c ON c.post_id = p.id
     WHERE p.id = $1
     GROUP BY p.id
   `,
-      [id, user?.id ?? null],
+      [id, user?.id ?? null, isAdmin(user)],
     );
 
     if (rows.length === 0) {
@@ -41,7 +41,10 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 });
     }
 
-    const { rowCount } = await query("DELETE FROM posts WHERE id = $1 AND user_id = $2", [id, user.id]);
+    const { rowCount } = await query(
+      "DELETE FROM posts WHERE id = $1 AND ($3 = true OR user_id = $2)",
+      [id, user.id, isAdmin(user)],
+    );
 
     if (rowCount === 0) {
       return NextResponse.json({ error: "본인이 작성한 글만 삭제할 수 있습니다." }, { status: 403 });
@@ -75,10 +78,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       `
     UPDATE posts
     SET title = $1, content = $2, image_url = $3
-    WHERE id = $4 AND user_id = $5
+    WHERE id = $4 AND ($6 = true OR user_id = $5)
     RETURNING id, title, author, date, content, image_url, views, likes
   `,
-      [title.trim(), content?.trim() ?? "", image_url ?? null, id, user.id],
+      [title.trim(), content?.trim() ?? "", image_url ?? null, id, user.id, isAdmin(user)],
     );
 
     if (rows.length === 0) {
