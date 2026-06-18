@@ -17,7 +17,6 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
     getIndicators(),
     getNews(category),
   ]);
-  const visibleNews = news.slice(0, 5);
 
   return (
     <main className="main">
@@ -51,10 +50,10 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
       <section className="section">
         <div className="section-head section-title-row">
           <h2>뉴스</h2>
-          <span className="badge">최신 {visibleNews.length}개</span>
+          <span className="badge">최신 {news.length}개</span>
         </div>
-        <div className="card timeline">
-          {visibleNews.map((item) => (
+        <div className="card timeline feed-news-scroll">
+          {news.map((item) => (
             <article className="timeline-item" key={item.id}>
               <time>{item.time}</time>
               <div>

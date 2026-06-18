@@ -910,6 +910,27 @@ th {
   padding: 8px 16px;
 }
 
+.feed-news-scroll {
+  max-height: 474px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: #3b4358 transparent;
+  scrollbar-width: thin;
+}
+
+.feed-news-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.feed-news-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.feed-news-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #3b4358;
+}
+
 .timeline-item {
   display: grid;
   grid-template-columns: 72px minmax(0, 1fr) auto;
