@@ -75,7 +75,7 @@ export function CommentBox({ postId }: { postId: string }) {
         </div>
       ) : (
         <form className="comment-form" onSubmit={onSubmit}>
-          {user ? <p className="comment-author">작성자 {user.nickname}</p> : null}
+          {user ? <p className="comment-author">{user.nickname}</p> : null}
           <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="댓글을 입력하세요" aria-label="댓글" rows={4} />
           {error ? <p className="form-error">{error}</p> : null}
           <button className="button" type="submit">댓글 등록</button>

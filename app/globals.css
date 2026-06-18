@@ -1223,6 +1223,7 @@ th {
   color: var(--lounge-muted);
   font-size: 13px;
   font-weight: 700;
+  line-height: 1;
 }
 
 .auth-required-card {
@@ -1523,8 +1524,8 @@ th {
 
 .comment-form {
   display: grid;
-  gap: 8px;
-  padding: 13px;
+  gap: 12px;
+  padding: 16px;
   border: 1px solid var(--lounge-line);
   border-radius: 16px;
   background: var(--lounge-panel);
@@ -1541,15 +1542,19 @@ th {
 
 .comment-form textarea {
   min-height: 74px;
-  padding: 10px;
+  padding: 14px;
   resize: vertical;
+  line-height: 1.55;
 }
 
 .comment-author {
+  display: inline-flex;
+  width: fit-content;
   margin: 0;
-  color: var(--lounge-muted);
-  font-size: 13px;
+  color: var(--lounge-soft);
+  font-size: 14px;
   font-weight: 800;
+  line-height: 1;
 }
 
 .comment-form button {

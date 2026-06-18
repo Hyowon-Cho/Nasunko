@@ -108,7 +108,7 @@ export function LoungeEditor() {
 
   return (
     <form className="lounge-editor card" onSubmit={onSubmit}>
-      {user ? <p className="editor-user">작성자 {user.nickname}</p> : null}
+      {user ? <p className="editor-user">{user.nickname}</p> : null}
       <label>
         <span>제목</span>
         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="제목을 입력하세요" />
