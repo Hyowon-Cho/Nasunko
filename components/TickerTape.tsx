@@ -5,6 +5,19 @@ type TickerTapeProps = {
 };
 
 export function TickerTape({ quotes }: TickerTapeProps) {
+  if (quotes.length === 0) {
+    return (
+      <section className="ticker" aria-label="시장 티커">
+        <div className="ticker-track">
+          <div className="ticker-item">
+            <strong>실시간 시세 연결 필요</strong>
+            <span>FMP_API_KEY 확인</span>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="ticker" aria-label="시장 티커">
       <div className="ticker-track">

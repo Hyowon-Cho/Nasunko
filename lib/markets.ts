@@ -187,21 +187,28 @@ async function fetchFmpQuotes(fallbackQuotes: MarketQuote[]) {
   }
 
   try {
-    const symbols = fallbackQuotes.map((q) => q.fmpSymbol ?? q.yahooSymbol ?? q.symbol).join(",");
-    const url = `https://financialmodelingprep.com/api/v3/quote/${encodeURIComponent(symbols)}?apikey=${process.env.FMP_API_KEY}`;
-    const response = await fetch(url, { next: { revalidate: 30 } });
+    const quotePairs = await Promise.all(
+      fallbackQuotes.map(async (fallback) => {
+        const symbol = fallback.fmpSymbol ?? fallback.yahooSymbol ?? fallback.symbol;
+        const url = `https://financialmodelingprep.com/stable/quote?symbol=${encodeURIComponent(symbol)}&apikey=${process.env.FMP_API_KEY}`;
+        const response = await fetch(url, { next: { revalidate: 30 } });
 
-    if (!response.ok) {
-      return null;
-    }
+        if (!response.ok) {
+          return null;
+        }
 
-    const data = await response.json() as FmpQuote[] | { "Error Message"?: string };
+        const data = await response.json() as FmpQuote[] | FmpQuote | { "Error Message"?: string };
+        const quote = Array.isArray(data) ? data[0] : data;
 
-    if (!Array.isArray(data)) {
-      return null;
-    }
+        if (!quote || !("price" in quote)) {
+          return null;
+        }
 
-    const results = new Map(data.map((quote) => [quote.symbol, quote]));
+        return [symbol, quote] as const;
+      }),
+    );
+
+    const results = new Map(quotePairs.filter((pair): pair is readonly [string, FmpQuote] => Boolean(pair)));
 
     return fallbackQuotes.map((fallback) => {
       const symbol = fallback.fmpSymbol ?? fallback.yahooSymbol ?? fallback.symbol;
@@ -239,8 +246,19 @@ async function getLiveQuotes(fallbackQuotes: MarketQuote[]) {
   return fetchYahooQuotes(fallbackQuotes);
 }
 
+async function getLiveQuotesOnly(fallbackQuotes: MarketQuote[]) {
+  const fmpQuotes = await fetchFmpQuotes(fallbackQuotes);
+
+  if (fmpQuotes?.some((quote) => quote.source === "live")) {
+    return fmpQuotes.filter((quote) => quote.source === "live");
+  }
+
+  const yahooQuotes = await fetchYahooQuotes(fallbackQuotes);
+  return yahooQuotes.filter((quote) => quote.source === "live");
+}
+
 export async function getTickerQuotes() {
-  return getLiveQuotes(tickerQuotes);
+  return getLiveQuotesOnly(tickerQuotes);
 }
 
 export async function getNasdaqComposite() {
