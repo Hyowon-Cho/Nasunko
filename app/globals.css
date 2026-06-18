@@ -1236,6 +1236,59 @@ th {
   margin: 0;
 }
 
+.trade-type-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.trade-type-card {
+  min-height: 132px;
+  padding: 20px;
+  border: 1px solid var(--lounge-line);
+  border-radius: 18px;
+  background: var(--lounge-panel);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+}
+
+.trade-type-card span {
+  display: inline-flex;
+  height: 24px;
+  align-items: center;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.trade-type-card strong {
+  display: block;
+  margin-top: 14px;
+  color: var(--lounge-text);
+  font-size: 22px;
+}
+
+.trade-type-card p {
+  margin: 8px 0 0;
+  color: var(--lounge-muted);
+  line-height: 1.55;
+}
+
+.trade-type-card.profit span {
+  background: rgba(255, 70, 85, 0.12);
+  color: var(--danger);
+}
+
+.trade-type-card.loss span {
+  background: rgba(45, 145, 255, 0.12);
+  color: var(--accent-2);
+}
+
+.trade-empty {
+  margin-top: 0;
+}
+
 .lounge-editor {
   display: grid;
   gap: 14px;
@@ -1794,6 +1847,10 @@ th {
   .quote-stats,
   .indicator-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .trade-type-grid {
+    grid-template-columns: 1fr;
   }
 
   .tradingview-shell {
