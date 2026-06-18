@@ -13,17 +13,10 @@ export default function LoungePage() {
       <section className="lounge-hero">
         <div>
           <p className="lounge-kicker">나선코 라운지</p>
-          <h1>나스닥 투자자들이 이야기하는 곳</h1>
-          <p>빅테크, 반도체, 경제지표, 시장 흐름에 대한 생각을 가볍게 남겨보세요.</p>
+          <h1>자유롭게 이야기하는 곳</h1>
+          <p>자신의 생각을 가볍게 남겨보세요.</p>
         </div>
         <Link className="lounge-write-button" href="/lounge/new">글쓰기</Link>
-      </section>
-      <section className="lounge-tabs" aria-label="라운지 카테고리">
-        <span className="active">전체</span>
-        <span>나스닥</span>
-        <span>빅테크</span>
-        <span>반도체</span>
-        <span>경제지표</span>
       </section>
       <LoungeList />
     </main>
