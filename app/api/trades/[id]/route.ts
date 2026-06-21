@@ -75,6 +75,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   }
 
   const realizedPnl = optionalNumber(payload.realized_pnl);
+  const resolvedType: TradeKind = returnRate < 0 ? "loss" : payload.type;
   try {
     const { rows } = await query<TradePost>(
       `
@@ -90,12 +91,12 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
                 image_url, views, likes
     `,
       [
-        payload.type,
+        resolvedType,
         symbol,
         title,
         content,
-        normalizeSignedValue(returnRate, payload.type),
-        realizedPnl === null ? null : normalizeSignedValue(realizedPnl, payload.type),
+        normalizeSignedValue(returnRate, resolvedType),
+        realizedPnl === null ? null : normalizeSignedValue(realizedPnl, resolvedType),
         optionalNumber(payload.entry_price),
         optionalNumber(payload.exit_price),
         payload.image_url ?? null,

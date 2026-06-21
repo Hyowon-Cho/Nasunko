@@ -80,6 +80,7 @@ export async function POST(request: NextRequest) {
   const realizedPnl = optionalNumber(payload.realized_pnl);
   const entryPrice = optionalNumber(payload.entry_price);
   const exitPrice = optionalNumber(payload.exit_price);
+  const resolvedType: TradeKind = returnRate < 0 ? "loss" : payload.type;
 
   try {
     await ensureTradeTables();
@@ -92,14 +93,14 @@ export async function POST(request: NextRequest) {
       [
         id,
         user.id,
-        payload.type,
+        resolvedType,
         symbol,
         title,
         content,
         user.nickname,
         formatToday(),
-        normalizeSignedValue(returnRate, payload.type),
-        realizedPnl === null ? null : normalizeSignedValue(realizedPnl, payload.type),
+        normalizeSignedValue(returnRate, resolvedType),
+        realizedPnl === null ? null : normalizeSignedValue(realizedPnl, resolvedType),
         entryPrice,
         exitPrice,
         payload.image_url ?? null,

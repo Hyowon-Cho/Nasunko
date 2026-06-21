@@ -1457,6 +1457,12 @@ th {
   gap: 12px;
 }
 
+.trade-form-help {
+  margin: -4px 0 2px;
+  color: var(--lounge-muted);
+  font-size: 12px;
+}
+
 .trade-detail-heading {
   margin-bottom: 10px;
 }

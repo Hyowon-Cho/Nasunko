@@ -173,7 +173,7 @@ export function TradeDetail({ id }: { id: string }) {
             </div>
             <div className="trade-form-grid">
               <label><span>종목</span><input value={edit.symbol} onChange={(event) => setEdit({ ...edit, symbol: event.target.value.toUpperCase() })} /></label>
-              <label><span>수익률 (%)</span><input type="number" step="0.01" value={edit.returnRate} onChange={(event) => setEdit({ ...edit, returnRate: event.target.value })} /></label>
+              <label><span>손익률 (%)</span><input type="number" step="0.01" value={edit.returnRate} onChange={(event) => setEdit({ ...edit, returnRate: event.target.value, type: Number(event.target.value) < 0 ? "loss" : edit.type })} /></label>
               <label><span>실현손익 ($)</span><input type="number" step="0.01" value={edit.realizedPnl} onChange={(event) => setEdit({ ...edit, realizedPnl: event.target.value })} /></label>
               <label><span>진입가</span><input type="number" step="0.0001" value={edit.entryPrice} onChange={(event) => setEdit({ ...edit, entryPrice: event.target.value })} /></label>
               <label><span>청산가</span><input type="number" step="0.0001" value={edit.exitPrice} onChange={(event) => setEdit({ ...edit, exitPrice: event.target.value })} /></label>
@@ -202,7 +202,7 @@ export function TradeDetail({ id }: { id: string }) {
         ) : (
           <>
             <section className="trade-metrics">
-              <div><span>수익률</span><strong className={trade.type}>{trade.return_rate > 0 ? "+" : ""}{trade.return_rate.toFixed(2)}%</strong></div>
+              <div><span>손익률</span><strong className={trade.type}>{trade.return_rate > 0 ? "+" : ""}{trade.return_rate.toFixed(2)}%</strong></div>
               <div><span>실현손익</span><strong>{formatMoney(trade.realized_pnl)}</strong></div>
               <div><span>진입가</span><strong>{trade.entry_price?.toLocaleString() ?? "-"}</strong></div>
               <div><span>청산가</span><strong>{trade.exit_price?.toLocaleString() ?? "-"}</strong></div>
