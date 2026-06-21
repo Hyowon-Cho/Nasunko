@@ -4,7 +4,13 @@ import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import type { LoungeComment } from "@/lib/lounge";
 
-export function CommentBox({ postId }: { postId: string }) {
+export function CommentBox({
+  postId,
+  resource = "posts",
+}: {
+  postId: string;
+  resource?: "posts" | "trades";
+}) {
   const [comments, setComments] = useState<LoungeComment[]>([]);
   const [user, setUser] = useState<{ nickname: string; role?: "user" | "admin" } | null>(null);
   const [authReady, setAuthReady] = useState(false);
@@ -16,7 +22,7 @@ export function CommentBox({ postId }: { postId: string }) {
   }
 
   useEffect(() => {
-    fetch(`/api/posts/${postId}/comments`)
+    fetch(`/api/${resource}/${postId}/comments`)
       .then((res) => res.json())
       .then((data: LoungeComment[]) => setComments(data))
       .catch(() => {});
@@ -28,7 +34,7 @@ export function CommentBox({ postId }: { postId: string }) {
         setAuthReady(true);
       })
       .catch(() => setAuthReady(true));
-  }, [postId]);
+  }, [postId, resource]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -36,7 +42,7 @@ export function CommentBox({ postId }: { postId: string }) {
 
     setError("");
 
-    const res = await fetch(`/api/posts/${postId}/comments`, {
+    const res = await fetch(`/api/${resource}/${postId}/comments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ body: body.trim() })
@@ -56,7 +62,7 @@ export function CommentBox({ postId }: { postId: string }) {
   async function deleteComment(commentId: number) {
     if (!window.confirm("댓글을 삭제할까요?")) return;
 
-    const res = await fetch(`/api/posts/${postId}/comments/${commentId}`, {
+    const res = await fetch(`/api/${resource}/${postId}/comments/${commentId}`, {
       method: "DELETE"
     });
 

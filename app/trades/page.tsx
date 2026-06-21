@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { TradeList } from "@/components/TradeList";
 
 export const metadata: Metadata = {
   title: "나선코 수익/손절",
@@ -31,10 +32,7 @@ export default function TradesPage() {
         </article>
       </section>
 
-      <section className="empty-lounge trade-empty">
-        <strong>아직 등록된 인증이 없습니다.</strong>
-        <p>임의 글 없이, 실제 회원이 남긴 수익/손절 인증만 표시됩니다.</p>
-      </section>
+      <TradeList />
     </main>
   );
 }

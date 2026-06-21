@@ -3,6 +3,7 @@ import { databaseErrorResponse } from "@/lib/api-error";
 import { getAdminEmails } from "@/lib/auth";
 import { query } from "@/lib/db";
 import { ensureNewsTables } from "@/lib/news-sync";
+import { ensureTradeTables } from "@/lib/trades";
 
 export async function GET() {
   try {
@@ -56,6 +57,7 @@ export async function GET() {
     await query(`ALTER TABLE posts ADD COLUMN IF NOT EXISTS image_url TEXT`);
     await query(`ALTER TABLE posts ADD COLUMN IF NOT EXISTS user_id TEXT REFERENCES users(id) ON DELETE SET NULL`);
     await ensureNewsTables();
+    await ensureTradeTables();
 
     const adminEmails = getAdminEmails();
     await query(

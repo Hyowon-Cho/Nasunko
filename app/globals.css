@@ -1289,6 +1289,219 @@ th {
   margin-top: 0;
 }
 
+.trade-filter,
+.trade-kind-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 14px;
+  border: 1px solid var(--lounge-line);
+  border-radius: 10px;
+  background: var(--lounge-panel);
+}
+
+.trade-filter button,
+.trade-kind-control button {
+  height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--lounge-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.trade-filter button.active,
+.trade-kind-control button.active {
+  background: #252c3c;
+  color: var(--lounge-text);
+}
+
+.trade-kind-control button.active.profit {
+  background: rgba(255, 70, 85, 0.14);
+  color: var(--danger);
+}
+
+.trade-kind-control button.active.loss {
+  background: rgba(45, 145, 255, 0.14);
+  color: var(--accent-2);
+}
+
+.trade-post-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.trade-post-card {
+  position: relative;
+  min-width: 0;
+  min-height: 214px;
+  padding: 18px;
+  border: 1px solid var(--lounge-line);
+  border-radius: 14px;
+  background: var(--lounge-panel);
+  color: var(--lounge-text);
+  overflow: hidden;
+}
+
+.trade-post-card:has(.trade-post-thumb) {
+  padding-right: 128px;
+}
+
+.trade-post-head,
+.trade-detail-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trade-kind {
+  display: inline-flex;
+  align-items: center;
+  height: 23px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.trade-kind.profit {
+  background: rgba(255, 70, 85, 0.12);
+  color: var(--danger);
+}
+
+.trade-kind.loss {
+  background: rgba(45, 145, 255, 0.12);
+  color: var(--accent-2);
+}
+
+.trade-symbol {
+  color: var(--lounge-soft);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.trade-return {
+  margin-left: auto;
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.trade-return.profit,
+.trade-metrics strong.profit {
+  color: var(--danger);
+}
+
+.trade-return.loss,
+.trade-metrics strong.loss {
+  color: var(--accent-2);
+}
+
+.trade-post-card h2 {
+  margin: 14px 0 0;
+  overflow: hidden;
+  font-size: 18px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trade-excerpt {
+  display: -webkit-box;
+  margin: 8px 0 0;
+  overflow: hidden;
+  color: var(--lounge-soft);
+  font-size: 13px;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.trade-card-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+  color: var(--lounge-muted);
+  font-size: 12px;
+}
+
+.trade-card-meta > strong {
+  margin-left: auto;
+  color: var(--lounge-soft);
+}
+
+.trade-post-thumb {
+  position: absolute;
+  top: 54px;
+  right: 18px;
+  width: 92px;
+  height: 92px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.trade-post-card .post-actions {
+  margin-top: 16px;
+}
+
+.trade-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.trade-detail-heading {
+  margin-bottom: 10px;
+}
+
+.trade-detail-heading .trade-symbol {
+  font-size: 15px;
+}
+
+.trade-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.trade-metrics > div {
+  min-width: 0;
+  padding: 14px;
+  border-radius: 10px;
+  background: var(--lounge-panel-soft);
+}
+
+.trade-metrics span,
+.trade-metrics strong {
+  display: block;
+}
+
+.trade-metrics span {
+  color: var(--lounge-muted);
+  font-size: 12px;
+}
+
+.trade-metrics strong {
+  margin-top: 7px;
+  overflow: hidden;
+  color: var(--lounge-text);
+  font-size: 17px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trade-edit-form {
+  gap: 14px;
+}
+
 .lounge-editor {
   display: grid;
   gap: 14px;
@@ -1851,6 +2064,18 @@ th {
 
   .trade-type-grid {
     grid-template-columns: 1fr;
+  }
+
+  .trade-post-list {
+    grid-template-columns: 1fr;
+  }
+
+  .trade-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .trade-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .tradingview-shell {
