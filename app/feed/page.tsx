@@ -53,7 +53,12 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
           <span className="badge">최신 {news.length}개</span>
         </div>
         <div className="card timeline feed-news-scroll">
-          {news.map((item) => (
+          {news.length === 0 ? (
+            <div className="empty-lounge">
+              <strong>표시할 최신 뉴스가 없습니다.</strong>
+              <p>다음 자동 수집 후 새로운 기사가 표시됩니다.</p>
+            </div>
+          ) : news.map((item) => (
             <article className="timeline-item" key={item.id}>
               <time>{item.time}</time>
               <div>
