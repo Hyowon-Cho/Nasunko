@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { getAnalyticsSummary } from "@/lib/analytics";
+import { getAnalyticsSummary, type MarketMove } from "@/lib/analytics";
 
 export const metadata: Metadata = {
   title: "나선코 분석",
-  description: "뉴스, 라운지, 매매기록 데이터를 집계한 나선코 BI 분석 대시보드입니다.",
+  description: "뉴스 자동화와 나스닥 주요 종목 데이터를 집계한 나선코 BI 분석 대시보드입니다.",
 };
 
 export const dynamic = "force-dynamic";
@@ -25,11 +25,6 @@ function formatPercent(value: number | null, signed = false) {
   return `${prefix}${value.toFixed(2)}%`;
 }
 
-function formatMoney(value: number | null) {
-  if (value === null) return "N/A";
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
-}
-
 function formatDuration(ms: number | null) {
   if (ms === null) return "N/A";
   if (ms < 1000) return `${ms}ms`;
@@ -46,6 +41,13 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
+function marketTone(value: number | null): MetricCardProps["tone"] {
+  if (value === null) return "default";
+  if (value > 0) return "up";
+  if (value < 0) return "down";
+  return "flat";
+}
+
 function MetricCard({ label, value, note, tone = "default" }: MetricCardProps) {
   return (
     <article className={`analytics-metric-card ${tone}`}>
@@ -56,16 +58,31 @@ function MetricCard({ label, value, note, tone = "default" }: MetricCardProps) {
   );
 }
 
+function MarketMoveList({ items, emptyText }: { items: MarketMove[]; emptyText: string }) {
+  return (
+    <div className="analytics-rank-list">
+      {items.length === 0 ? <p className="muted">{emptyText}</p> : items.map((item, index) => (
+        <div className="analytics-rank-row" key={`${item.symbol}-${index}`}>
+          <span>{index + 1}</span>
+          <strong>{item.symbol}</strong>
+          <em className={item.changePercent >= 0 ? "rank-up" : "rank-down"}>{formatPercent(item.changePercent, true)}</em>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default async function AnalyticsPage() {
   const summary = await getAnalyticsSummary();
   const syncStatus = summary.news.latestSyncStatus ?? "unknown";
+  const riskTone = summary.market.riskOffScore >= 50 ? "down" : summary.market.riskOffScore >= 30 ? "default" : "flat";
 
   return (
     <main className="main analytics-main">
       <section className="hero analytics-hero">
         <p className="lounge-kicker">Nasunko Analytics</p>
-        <h1 className="page-title">데이터 분석 대시보드</h1>
-        <p className="page-subtitle">뉴스 수집, 커뮤니티 활동, 매매기록 데이터를 KPI와 리스크 지표로 집계합니다.</p>
+        <h1 className="page-title">뉴스와 나스닥 시장 분석</h1>
+        <p className="page-subtitle">자동 수집 뉴스와 나스닥 주요 종목 데이터를 KPI와 리스크 지표로 집계합니다.</p>
       </section>
 
       <section className="section analytics-section">
@@ -112,66 +129,54 @@ export default async function AnalyticsPage() {
 
       <section className="section analytics-section">
         <div className="section-head section-title-row">
-          <h2>커뮤니티 데이터</h2>
-          <span className="badge">User Generated Data</span>
+          <h2>나스닥 시장 KPI</h2>
+          <span className="badge">FMP / fallback</span>
         </div>
         <div className="analytics-metric-grid four">
-          <MetricCard label="라운지 글" value={formatNumber(summary.community.posts)} note="posts" />
-          <MetricCard label="댓글" value={formatNumber(summary.community.comments)} note="lounge + trade comments" />
-          <MetricCard label="활성 작성자" value={formatNumber(summary.community.activeAuthors)} note="라운지 작성 기준" />
-          <MetricCard label="회원" value={formatNumber(summary.community.users)} note="users" />
+          <MetricCard label="M7 평균 등락률" value={formatPercent(summary.market.m7.avgChangePercent, true)} note={`${summary.market.m7.upCount} 상승 · ${summary.market.m7.downCount} 하락`} tone={marketTone(summary.market.m7.avgChangePercent)} />
+          <MetricCard label="빅테크 평균" value={formatPercent(summary.market.bigTech.avgChangePercent, true)} note={`${summary.market.bigTech.liveCount}/${summary.market.bigTech.count} live`} tone={marketTone(summary.market.bigTech.avgChangePercent)} />
+          <MetricCard label="반도체 평균" value={formatPercent(summary.market.semiconductor.avgChangePercent, true)} note={`${summary.market.semiconductor.upCount} 상승 · ${summary.market.semiconductor.downCount} 하락`} tone={marketTone(summary.market.semiconductor.avgChangePercent)} />
+          <MetricCard label="하락 종목 비율" value={formatPercent(summary.market.riskOffScore)} note={`${summary.market.watched.downCount}/${summary.market.watched.count} watched`} tone={riskTone} />
         </div>
       </section>
 
-      <section className="section analytics-section">
-        <div className="section-head section-title-row">
-          <h2>매매기록 분석</h2>
-          <span className="badge">Trade Outcomes</span>
-        </div>
-        <div className="analytics-metric-grid four">
-          <MetricCard label="전체 인증" value={formatNumber(summary.trades.total)} note="trade_posts" />
-          <MetricCard label="수익 인증" value={formatNumber(summary.trades.profitCount)} note={formatPercent(summary.trades.avgProfit, true)} tone="up" />
-          <MetricCard label="손절 인증" value={formatNumber(summary.trades.lossCount)} note={formatPercent(summary.trades.avgLoss, true)} tone="down" />
-          <MetricCard label="실현손익 합계" value={formatMoney(summary.trades.totalRealizedPnl)} note="입력값 기준" />
-        </div>
-      </section>
-
-      <section className="section analytics-split">
+      <section className="section analytics-split three-panel">
         <article className="card card-inner analytics-panel">
           <div className="section-head section-title-row">
-            <h2>종목별 인증 TOP 5</h2>
-            <span className="badge">SQL</span>
+            <h2>상승률 TOP 5</h2>
+            <span className="badge">Watched</span>
           </div>
-          <div className="analytics-rank-list">
-            {summary.topTradeSymbols.length === 0 ? <p className="muted">집계할 매매기록이 없습니다.</p> : summary.topTradeSymbols.map((item, index) => (
-              <div className="analytics-rank-row" key={item.symbol}>
-                <span>{index + 1}</span>
-                <strong>{item.symbol}</strong>
-                <em>{formatNumber(item.trades)}건 · {formatPercent(item.avgReturn, true)}</em>
-              </div>
-            ))}
-          </div>
+          <MarketMoveList items={summary.market.topGainers} emptyText="시장 데이터를 불러오지 못했습니다." />
         </article>
 
         <article className="card card-inner analytics-panel risk-panel">
           <div className="section-head section-title-row">
-            <h2>리스크 요약</h2>
-            <span className="badge">Loss Risk</span>
+            <h2>하락률 TOP 5</h2>
+            <span className="badge">Risk</span>
           </div>
-          <div className="analytics-metric-grid two compact">
-            <MetricCard label="손절 비율" value={formatPercent(summary.risk.lossRatio)} note="loss / total" tone="down" />
-            <MetricCard label="평균 손실폭" value={formatPercent(summary.risk.avgLossMagnitude)} note="손절 인증 기준" tone="down" />
-          </div>
-          <div className="analytics-rank-list risk-list">
-            {summary.lossSymbols.length === 0 ? <p className="muted">손절 데이터가 없습니다.</p> : summary.lossSymbols.map((item, index) => (
-              <div className="analytics-rank-row" key={item.symbol}>
-                <span>{index + 1}</span>
-                <strong>{item.symbol}</strong>
-                <em>{formatNumber(item.losses)}건 · {formatPercent(item.avgLoss, true)}</em>
-              </div>
-            ))}
-          </div>
+          <MarketMoveList items={summary.market.topLosers} emptyText="시장 데이터를 불러오지 못했습니다." />
         </article>
+
+        <article className="card card-inner analytics-panel">
+          <div className="section-head section-title-row">
+            <h2>변동성 TOP 5</h2>
+            <span className="badge">Abs %</span>
+          </div>
+          <MarketMoveList items={summary.market.mostVolatile} emptyText="시장 데이터를 불러오지 못했습니다." />
+        </article>
+      </section>
+
+      <section className="section analytics-section">
+        <div className="section-head section-title-row">
+          <h2>사용자 데이터 상태</h2>
+          <span className="badge">Future Dataset</span>
+        </div>
+        <div className="analytics-metric-grid four secondary">
+          <MetricCard label="라운지 글" value={formatNumber(summary.community.posts)} note="데이터 축적 후 의견 분석 예정" />
+          <MetricCard label="댓글" value={formatNumber(summary.community.comments)} note="커뮤니티 반응 데이터" />
+          <MetricCard label="매매기록" value={formatNumber(summary.trades.total)} note="수익/손절 결과 데이터" />
+          <MetricCard label="회원" value={formatNumber(summary.community.users)} note="사용자 기반" />
+        </div>
       </section>
     </main>
   );

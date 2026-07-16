@@ -53,10 +53,10 @@ The Analytics page turns stored data into BI-style KPI summaries.
 - News ETL status metrics
 - News category distribution
 - News sync quality metrics such as inserted and duplicate counts
-- Community activity metrics
-- Trade outcome metrics
-- Loss ratio and average loss magnitude
-- Symbol-level trade outcome rankings
+- M7, big tech, and semiconductor average change metrics
+- Advancing and declining stock counts
+- Top gainers, top losers, and most volatile watched symbols
+- Community and trade records shown as future user-generated datasets
 
 ### Lounge
 
@@ -311,7 +311,7 @@ https://nasunko.vercel.app
 
 Nasunko can be described as a financial BI and data pipeline project:
 
-> Nasunko collects market-related news, stores normalized records in PostgreSQL, provides a Nasdaq market dashboard, and aggregates investor discussion and trade outcome data into BI and risk KPIs.
+> Nasunko collects market-related news, stores normalized records in PostgreSQL, combines them with Nasdaq-focused market quotes, and presents BI/risk KPIs for news flow and market movement. Community and trade records remain available as future user-generated datasets.
 
 This makes the project relevant to data analyst, risk analyst, and junior data engineering roles because it includes data collection, transformation, deduplication, loading, persistence, monitoring, and dashboard presentation.
 

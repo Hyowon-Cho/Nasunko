@@ -2388,3 +2388,26 @@ th {
     text-align: left;
   }
 }
+
+.analytics-split.three-panel {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.analytics-metric-grid.secondary .analytics-metric-card {
+  min-height: 104px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.analytics-rank-row em.rank-up {
+  color: var(--up);
+}
+
+.analytics-rank-row em.rank-down {
+  color: var(--down);
+}
+
+@media (max-width: 1040px) {
+  .analytics-split.three-panel {
+    grid-template-columns: 1fr;
+  }
+}

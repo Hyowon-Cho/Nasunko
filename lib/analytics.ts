@@ -1,4 +1,22 @@
 import { query } from "@/lib/db";
+import { getMagnificentSevenQuotes, getMarketQuotes, type MarketQuote } from "@/lib/markets";
+
+export type MarketGroupSummary = {
+  count: number;
+  upCount: number;
+  downCount: number;
+  flatCount: number;
+  avgChangePercent: number | null;
+  liveCount: number;
+};
+
+export type MarketMove = {
+  symbol: string;
+  name: string;
+  changePercent: number;
+  price: number;
+  source?: "live" | "fallback";
+};
 
 export type MetricSummary = {
   news: {
@@ -10,6 +28,16 @@ export type MetricSummary = {
     latestSyncAt: string | null;
     latestInserted: number;
     latestDuplicates: number;
+  };
+  market: {
+    m7: MarketGroupSummary;
+    bigTech: MarketGroupSummary;
+    semiconductor: MarketGroupSummary;
+    watched: MarketGroupSummary;
+    riskOffScore: number;
+    topGainers: MarketMove[];
+    topLosers: MarketMove[];
+    mostVolatile: MarketMove[];
   };
   community: {
     posts: number;
@@ -26,14 +54,7 @@ export type MetricSummary = {
     avgLoss: number | null;
     totalRealizedPnl: number | null;
   };
-  risk: {
-    lossRatio: number | null;
-    avgLossMagnitude: number | null;
-    maxLoss: number | null;
-  };
   newsCategories: Array<{ category: string; count: number }>;
-  topTradeSymbols: Array<{ symbol: string; trades: number; avgReturn: number | null; totalPnl: number | null }>;
-  lossSymbols: Array<{ symbol: string; losses: number; avgLoss: number | null }>;
 };
 
 type NewsSummaryRow = {
@@ -65,27 +86,11 @@ type TradeSummaryRow = {
   avg_profit: number | null;
   avg_loss: number | null;
   total_realized_pnl: number | null;
-  loss_ratio: number | null;
-  avg_loss_magnitude: number | null;
-  max_loss: number | null;
 };
 
 type CategoryRow = {
   category: string;
   count: number;
-};
-
-type SymbolRow = {
-  symbol: string;
-  trades: number;
-  avg_return: number | null;
-  total_pnl: number | null;
-};
-
-type LossSymbolRow = {
-  symbol: string;
-  losses: number;
-  avg_loss: number | null;
 };
 
 function numberOrZero(value: number | string | null | undefined) {
@@ -98,8 +103,62 @@ function nullableNumber(value: number | string | null | undefined) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function summarizeQuotes(quotes: MarketQuote[]): MarketGroupSummary {
+  const count = quotes.length;
+  const upCount = quotes.filter((quote) => quote.changePercent > 0).length;
+  const downCount = quotes.filter((quote) => quote.changePercent < 0).length;
+  const flatCount = count - upCount - downCount;
+  const avgChangePercent = count === 0 ? null : quotes.reduce((sum, quote) => sum + quote.changePercent, 0) / count;
+  const liveCount = quotes.filter((quote) => quote.source === "live").length;
+
+  return { count, upCount, downCount, flatCount, avgChangePercent, liveCount };
+}
+
+function marketMove(quote: MarketQuote): MarketMove {
+  return {
+    symbol: quote.symbol,
+    name: quote.name,
+    changePercent: quote.changePercent,
+    price: quote.price,
+    source: quote.source,
+  };
+}
+
+function uniqueQuotes(quotes: MarketQuote[]) {
+  const seen = new Map<string, MarketQuote>();
+  for (const quote of quotes) {
+    if (!seen.has(quote.symbol)) seen.set(quote.symbol, quote);
+  }
+  return [...seen.values()];
+}
+
+async function getMarketAnalytics() {
+  const [m7Quotes, bigTechQuotes, semiconductorQuotes] = await Promise.all([
+    getMagnificentSevenQuotes(),
+    getMarketQuotes("big-tech"),
+    getMarketQuotes("semiconductor"),
+  ]);
+  const watchedQuotes = uniqueQuotes([...bigTechQuotes, ...semiconductorQuotes]);
+  const topGainers = [...watchedQuotes].sort((a, b) => b.changePercent - a.changePercent).slice(0, 5).map(marketMove);
+  const topLosers = [...watchedQuotes].sort((a, b) => a.changePercent - b.changePercent).slice(0, 5).map(marketMove);
+  const mostVolatile = [...watchedQuotes].sort((a, b) => Math.abs(b.changePercent) - Math.abs(a.changePercent)).slice(0, 5).map(marketMove);
+  const watched = summarizeQuotes(watchedQuotes);
+  const riskOffScore = watched.count === 0 ? 0 : (watched.downCount / watched.count) * 100;
+
+  return {
+    m7: summarizeQuotes(m7Quotes),
+    bigTech: summarizeQuotes(bigTechQuotes),
+    semiconductor: summarizeQuotes(semiconductorQuotes),
+    watched,
+    riskOffScore,
+    topGainers,
+    topLosers,
+    mostVolatile,
+  };
+}
+
 export async function getAnalyticsSummary(): Promise<MetricSummary> {
-  const [newsSummary, latestSync, communitySummary, tradeSummary, newsCategories, topTradeSymbols, lossSymbols] = await Promise.all([
+  const [newsSummary, latestSync, communitySummary, tradeSummary, newsCategories, market] = await Promise.all([
     query<NewsSummaryRow>(`
       SELECT
         COUNT(*)::int AS total,
@@ -128,10 +187,7 @@ export async function getAnalyticsSummary(): Promise<MetricSummary> {
         AVG(return_rate)::float8 AS avg_return,
         AVG(return_rate) FILTER (WHERE type = 'profit')::float8 AS avg_profit,
         AVG(return_rate) FILTER (WHERE type = 'loss')::float8 AS avg_loss,
-        SUM(realized_pnl)::float8 AS total_realized_pnl,
-        CASE WHEN COUNT(*) = 0 THEN NULL ELSE (COUNT(*) FILTER (WHERE type = 'loss')::float8 / COUNT(*)::float8) * 100 END AS loss_ratio,
-        AVG(ABS(return_rate)) FILTER (WHERE type = 'loss')::float8 AS avg_loss_magnitude,
-        MIN(return_rate)::float8 AS max_loss
+        SUM(realized_pnl)::float8 AS total_realized_pnl
       FROM trade_posts
     `),
     query<CategoryRow>(`
@@ -142,28 +198,7 @@ export async function getAnalyticsSummary(): Promise<MetricSummary> {
       ORDER BY count DESC, category ASC
       LIMIT 5
     `),
-    query<SymbolRow>(`
-      SELECT
-        symbol,
-        COUNT(*)::int AS trades,
-        AVG(return_rate)::float8 AS avg_return,
-        SUM(realized_pnl)::float8 AS total_pnl
-      FROM trade_posts
-      GROUP BY symbol
-      ORDER BY trades DESC, symbol ASC
-      LIMIT 5
-    `),
-    query<LossSymbolRow>(`
-      SELECT
-        symbol,
-        COUNT(*)::int AS losses,
-        AVG(return_rate)::float8 AS avg_loss
-      FROM trade_posts
-      WHERE type = 'loss'
-      GROUP BY symbol
-      ORDER BY losses DESC, avg_loss ASC, symbol ASC
-      LIMIT 5
-    `),
+    getMarketAnalytics(),
   ]);
 
   const news = newsSummary.rows[0];
@@ -182,6 +217,7 @@ export async function getAnalyticsSummary(): Promise<MetricSummary> {
       latestInserted: numberOrZero(sync?.inserted_count),
       latestDuplicates: numberOrZero(sync?.duplicate_count),
     },
+    market,
     community: {
       posts: numberOrZero(community?.posts),
       comments: numberOrZero(community?.comments),
@@ -197,22 +233,6 @@ export async function getAnalyticsSummary(): Promise<MetricSummary> {
       avgLoss: nullableNumber(trades?.avg_loss),
       totalRealizedPnl: nullableNumber(trades?.total_realized_pnl),
     },
-    risk: {
-      lossRatio: nullableNumber(trades?.loss_ratio),
-      avgLossMagnitude: nullableNumber(trades?.avg_loss_magnitude),
-      maxLoss: nullableNumber(trades?.max_loss),
-    },
     newsCategories: newsCategories.rows.map((row) => ({ category: row.category, count: numberOrZero(row.count) })),
-    topTradeSymbols: topTradeSymbols.rows.map((row) => ({
-      symbol: row.symbol,
-      trades: numberOrZero(row.trades),
-      avgReturn: nullableNumber(row.avg_return),
-      totalPnl: nullableNumber(row.total_pnl),
-    })),
-    lossSymbols: lossSymbols.rows.map((row) => ({
-      symbol: row.symbol,
-      losses: numberOrZero(row.losses),
-      avgLoss: nullableNumber(row.avg_loss),
-    })),
   };
 }
