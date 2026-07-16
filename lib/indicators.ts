@@ -89,26 +89,66 @@ function toMonthLabel(date: string) {
   return KR_MONTHS[month - 1] ?? date.slice(5, 7);
 }
 
+function normalizeFredPoints(points: FredPoint[]) {
+  return points
+    .filter((point) => point.date && Number.isFinite(point.value))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+async function fetchFredJsonSeries(seriesId: string): Promise<FredPoint[]> {
+  const apiKey = process.env.FRED_API_KEY;
+  if (!apiKey) return [];
+
+  const url = new URL("https://api.stlouisfed.org/fred/series/observations");
+  url.searchParams.set("series_id", seriesId);
+  url.searchParams.set("api_key", apiKey);
+  url.searchParams.set("file_type", "json");
+  url.searchParams.set("sort_order", "desc");
+  url.searchParams.set("limit", "48");
+
+  const res = await fetch(url, {
+    next: { revalidate: 60 * 60 },
+    signal: AbortSignal.timeout(6000),
+  });
+
+  if (!res.ok) return [];
+
+  const payload = await res.json() as { observations?: Array<{ date?: string; value?: string }> };
+  return normalizeFredPoints((payload.observations ?? []).map((item) => ({
+    date: item.date ?? "",
+    value: Number(item.value),
+  })));
+}
+
+async function fetchFredCsvSeries(seriesId: string): Promise<FredPoint[]> {
+  const res = await fetch(`https://fred.stlouisfed.org/graph/fredgraph.csv?id=${seriesId}`, {
+    next: { revalidate: 60 * 60 },
+    signal: AbortSignal.timeout(6000),
+  });
+
+  if (!res.ok) return [];
+
+  const csv = await res.text();
+  return normalizeFredPoints(csv
+    .trim()
+    .split("\n")
+    .slice(1)
+    .map((line) => {
+      const [date, rawValue] = line.split(",");
+      return { date, value: Number(rawValue) };
+    }));
+}
+
 async function fetchFredSeries(seriesId: string): Promise<FredPoint[]> {
   try {
-    const res = await fetch(`https://fred.stlouisfed.org/graph/fredgraph.csv?id=${seriesId}`, {
-      next: { revalidate: 60 * 60 },
-      signal: AbortSignal.timeout(2500),
-    });
+    const jsonPoints = await fetchFredJsonSeries(seriesId);
+    if (jsonPoints.length > 0) return jsonPoints;
+  } catch {
+    // Fall through to the public CSV endpoint.
+  }
 
-    if (!res.ok) return [];
-
-    const text = await res.text();
-    return text
-      .trim()
-      .split("\n")
-      .slice(1)
-      .map((line) => {
-        const [date, rawValue] = line.split(",");
-        const value = Number(rawValue);
-        return { date, value };
-      })
-      .filter((point) => point.date && Number.isFinite(point.value));
+  try {
+    return await fetchFredCsvSeries(seriesId);
   } catch {
     return [];
   }
