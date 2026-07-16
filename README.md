@@ -1,36 +1,124 @@
 # Nasunko
 
-Nasunko is a dark Nasdaq dashboard for tracking live market data, major tech stocks, economic indicators, news, and investor community posts in one place.
+Nasunko is a dark Nasdaq-focused financial information platform that combines market data, automated news collection, investor discussion, and user trade outcome records.
 
-Built with Next.js, TypeScript, AWS RDS PostgreSQL, and Capacitor.
+The project is designed not only as a web app, but also as a small financial data pipeline and BI-style portfolio project.
 
-## Features
+## Product Concept
 
-- **Nasdaq Dashboard**
-  - Live Nasdaq-focused market overview
-  - Major tech stock cards
-  - TradingView chart integration
-  - Related market cards
+Nasunko organizes the service into four main data areas:
 
-- **Feed**
-  - Economic indicators and market news in one page
-  - Scrollable news feed
-  - Indicator detail pages with charts
+```txt
+Nasdaq       = Market data dashboard
+News         = Automated news collection pipeline
+Lounge       = Investor opinion data
+Trade Records = User profit / loss outcome data
+```
 
-- **Lounge**
-  - Sign up and login
-  - Create, edit, and delete posts
-  - Comment system
-  - Admin controls for post and comment moderation
+This structure allows the app to collect, store, display, and later analyze market signals, news flow, community sentiment, and user trading behavior.
 
-- **Profit / Loss**
-  - Trade recap section scaffold
-  - Profit and loss review entry point
-  - Ready to be connected to DB-backed trade journals
+## Current Features
 
-- **Mobile App Ready**
-  - Capacitor iOS and Android projects included
-  - Loads the deployed Vercel app inside the native shell
+### Nasdaq Dashboard
+
+The Nasdaq page is the main market dashboard.
+
+- Nasdaq-focused market overview
+- Major U.S. tech stock cards
+- TradingView chart integration
+- Related market cards such as VIX, USD/KRW, Gold, WTI, and semiconductor ETFs
+- Real market quote integration through FMP when an API key is available
+- Fallback handling when external market data is unavailable
+
+### News
+
+The News page is backed by an automated RSS-based ETL pipeline.
+
+- Scheduled RSS collection from external news sources
+- News title, URL, source, category, and published time extraction
+- URL canonicalization and tracking parameter removal
+- Title fingerprinting for duplicate detection
+- Automatic category classification
+- PostgreSQL bulk insert with `ON CONFLICT DO NOTHING`
+- News sync execution logs through `news_sync_runs`
+- Scrollable news timeline with category filters
+
+News is stored first, then served from PostgreSQL. The page does not depend on live RSS calls during normal user browsing.
+
+### Lounge
+
+The Lounge is the investor discussion area and user-generated opinion data source.
+
+- Sign up and login
+- Create, view, edit, and delete posts
+- Comment system
+- Admin moderation for posts and comments
+- Nickname-based community display
+- PostgreSQL-backed persistence
+
+### Trade Records
+
+The Trade Records section stores user profit and loss review data.
+
+- Create trade records with symbol, return rate, realized P/L, entry price, exit price, recap text, and image upload
+- Profit / loss classification
+- Negative return input automatically switches the record to loss
+- Trade detail page with edit and delete controls for the owner
+- Comment support
+- Data foundation for future trade outcome analytics
+
+### Mobile App Ready
+
+- Capacitor iOS and Android projects included
+- Native shell can load the deployed Vercel app
+
+## Data Engineering Highlights
+
+Nasunko includes a small ETL pipeline for news automation.
+
+```txt
+[RSS Sources]
+Korean financial news RSS feeds
+        |
+        v
+[Extract]
+Fetch RSS, parse articles
+        |
+        v
+[Transform]
+Normalize title
+Canonicalize URL
+Remove tracking parameters
+Standardize published time
+Classify category
+Detect duplicates
+        |
+        v
+[Load]
+Bulk insert into PostgreSQL
+ON CONFLICT DO NOTHING
+        |
+        v
+[Serving]
+News page reads from PostgreSQL
+        |
+        v
+[Monitoring]
+news_sync_runs stores sync status and duration
+```
+
+Key improvement:
+
+- Article-by-article inserts were replaced with bulk insert.
+- For 68 collected articles, the maximum insert requests were reduced from 68 to 1.
+- RSS request timeout was reduced from 4000ms to 2500ms.
+- News sync run logs track status, fetched count, inserted count, duplicate count, deleted count, source error count, and duration.
+
+More details are documented in:
+
+```txt
+docs/news-feed-automation.md
+```
 
 ## Tech Stack
 
@@ -41,6 +129,8 @@ Built with Next.js, TypeScript, AWS RDS PostgreSQL, and Capacitor.
 - **Auth:** Cookie-based sessions
 - **Charts:** TradingView Widget, Recharts
 - **Market Data:** FMP API
+- **News Pipeline:** RSS, GitHub Actions, Vercel Cron, PostgreSQL
+- **File Uploads:** Vercel Blob
 - **Deployment:** Vercel
 - **Mobile:** Capacitor
 
@@ -48,18 +138,21 @@ Built with Next.js, TypeScript, AWS RDS PostgreSQL, and Capacitor.
 
 ```txt
 app/
-  api/              Next.js API routes
-  nasdaq/           Nasdaq dashboard
-  feed/             News and indicators feed
-  lounge/           Community lounge
-  trades/           Profit / loss section
-  login/            Login page
-  signup/           Signup page
+  api/                  Next.js API routes
+  api/cron/news/        Scheduled news sync endpoint
+  api/admin/news-sync/  Admin news sync status endpoint
+  nasdaq/               Nasdaq market dashboard
+  feed/                 News page
+  lounge/               Community lounge
+  trades/               User trade records
+  login/                Login page
+  signup/               Signup page
 
-components/         Reusable UI components
-lib/                Data, auth, database, market, news, indicator logic
-ios/                Capacitor iOS project
-android/            Capacitor Android project
+components/             Reusable UI components
+lib/                    Data, auth, database, market, news, trade logic
+docs/                   Project documentation and portfolio writeups
+ios/                    Capacitor iOS project
+android/                Capacitor Android project
 ```
 
 ## Getting Started
@@ -91,15 +184,17 @@ DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/postgres
 ADMIN_EMAILS=admin@example.com
 FMP_API_KEY=your_fmp_api_key
 FRED_API_KEY=your_fred_api_key
+CRON_SECRET=your_cron_secret
 BLOB_READ_WRITE_TOKEN=your_vercel_blob_token
 ```
 
 Notes:
 
-- `DATABASE_URL` is required for lounge login, posts, comments, and admin features.
+- `DATABASE_URL` is required for auth, lounge posts, comments, trade records, and news persistence.
 - `ADMIN_EMAILS` is a comma-separated list of admin accounts.
 - `FMP_API_KEY` is used for market quotes.
-- `FRED_API_KEY` is optional depending on indicator data usage.
+- `FRED_API_KEY` is optional and reserved for indicator-related pages or future analytics.
+- `CRON_SECRET` protects the scheduled news sync endpoint in production.
 - `BLOB_READ_WRITE_TOKEN` is used for image uploads with Vercel Blob.
 
 ## Database Setup
@@ -110,14 +205,37 @@ After setting `DATABASE_URL`, run the setup route once:
 http://localhost:3000/api/setup
 ```
 
-This creates or updates:
+This creates or updates core tables for:
 
-- `users`
-- `sessions`
-- `posts`
-- `comments`
+- users
+- sessions
+- lounge posts
+- comments
+- trade records
+- news articles
+- news sync logs
 
 It also applies admin roles based on `ADMIN_EMAILS`.
+
+## News Sync
+
+The automated news sync can be triggered by:
+
+```txt
+GET /api/cron/news
+```
+
+In production, this route requires:
+
+```txt
+Authorization: Bearer <CRON_SECRET>
+```
+
+Admin users can inspect recent news sync runs through:
+
+```txt
+GET /api/admin/news-sync
+```
 
 ## Scripts
 
@@ -172,7 +290,16 @@ https://nasunko.vercel.app
 - Browser sessions use an HTTP-only cookie.
 - SQL queries use parameter binding.
 - Admin permissions are checked server-side.
+- Cron endpoint is protected by `CRON_SECRET` in production.
 - `.env.local` must never be committed.
+
+## Portfolio Positioning
+
+Nasunko can be described as a financial BI and data pipeline project:
+
+> Nasunko collects market-related news, stores normalized records in PostgreSQL, provides a Nasdaq market dashboard, and captures investor discussion and trade outcome data for future analytics.
+
+This makes the project relevant to data analyst, risk analyst, and junior data engineering roles because it includes data collection, transformation, deduplication, loading, persistence, monitoring, and dashboard presentation.
 
 ## Disclaimer
 
