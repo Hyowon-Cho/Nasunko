@@ -124,7 +124,7 @@ export function TradeEditor() {
         </label>
         <label>
           <span>실현손익 ($)</span>
-          <input type="number" step="0.01" value={realizedPnl} onChange={(event) => setRealizedPnl(event.target.value)} placeholder="820" />
+          <input type="number" step="0.01" value={realizedPnl} onChange={(event) => setRealizedPnl(event.target.value)} placeholder="" />
         </label>
         <label>
           <span>진입가</span>
