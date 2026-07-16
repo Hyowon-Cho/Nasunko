@@ -107,7 +107,7 @@ async function fetchFredJsonSeries(seriesId: string): Promise<FredPoint[]> {
   url.searchParams.set("limit", "48");
 
   const res = await fetch(url, {
-    next: { revalidate: 60 * 60 },
+    cache: "no-store",
     signal: AbortSignal.timeout(6000),
   });
 
@@ -122,7 +122,7 @@ async function fetchFredJsonSeries(seriesId: string): Promise<FredPoint[]> {
 
 async function fetchFredCsvSeries(seriesId: string): Promise<FredPoint[]> {
   const res = await fetch(`https://fred.stlouisfed.org/graph/fredgraph.csv?id=${seriesId}`, {
-    next: { revalidate: 60 * 60 },
+    cache: "no-store",
     signal: AbortSignal.timeout(6000),
   });
 
