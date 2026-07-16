@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 const navItems = [
   { href: "/nasdaq", label: "나스닥" },
-  { href: "/feed", label: "뉴스" },
+  { href: "/feed", label: "피드" },
   { href: "/analytics", label: "분석" },
   { href: "/lounge", label: "라운지" },
   { href: "/trades", label: "수익/손절" }
