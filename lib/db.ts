@@ -25,6 +25,9 @@ function createPool() {
   return new Pool({
     connectionString: databaseUrl.toString(),
     ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 3000,
+    query_timeout: 5000,
+    idleTimeoutMillis: 10000,
   });
 }
 

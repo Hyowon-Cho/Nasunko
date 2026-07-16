@@ -176,7 +176,7 @@ function newsRowToItem(row: StoredNewsRow): NewsItem {
   };
 }
 
-async function getStoredNews(category: NewsCategory): Promise<NewsItem[]> {
+export async function getStoredNews(category: NewsCategory): Promise<NewsItem[]> {
   const values: unknown[] = category === "전체" ? [] : [category];
   const categoryFilter = category === "전체" ? "" : "AND category = $1";
   const { rows } = await query<StoredNewsRow>(
