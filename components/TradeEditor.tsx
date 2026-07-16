@@ -106,7 +106,7 @@ export function TradeEditor() {
       <div className="trade-form-grid">
         <label>
           <span>종목</span>
-          <input value={symbol} onChange={(event) => setSymbol(event.target.value.toUpperCase())} placeholder="NVDA" maxLength={16} required />
+          <input value={symbol} onChange={(event) => setSymbol(event.target.value.toUpperCase())} placeholder="" maxLength={16} required />
         </label>
         <label>
           <span>손익률 (%)</span>
@@ -118,7 +118,7 @@ export function TradeEditor() {
               setReturnRate(event.target.value);
               if (Number(event.target.value) < 0) setType("loss");
             }}
-            placeholder={type === "profit" ? "12.40" : "-12.40"}
+            placeholder=""
             required
           />
         </label>
@@ -128,17 +128,17 @@ export function TradeEditor() {
         </label>
         <label>
           <span>진입가</span>
-          <input type="number" step="0.0001" value={entryPrice} onChange={(event) => setEntryPrice(event.target.value)} placeholder="132.10" />
+          <input type="number" step="0.0001" value={entryPrice} onChange={(event) => setEntryPrice(event.target.value)} placeholder="" />
         </label>
         <label>
           <span>청산가</span>
-          <input type="number" step="0.0001" value={exitPrice} onChange={(event) => setExitPrice(event.target.value)} placeholder="148.50" />
+          <input type="number" step="0.0001" value={exitPrice} onChange={(event) => setExitPrice(event.target.value)} placeholder="" />
         </label>
       </div>
       <p className="trade-form-help">음수 손익률을 입력하면 손절로 자동 전환됩니다.</p>
       <label>
         <span>제목</span>
-        <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="매매를 한 줄로 요약하세요" required />
+        <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="" required />
       </label>
       <label>
         <span>복기</span>
