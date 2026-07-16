@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { INDICATOR_CONFIGS } from "@/lib/indicators";
+import { getIndicators } from "@/lib/indicators";
 import { getStoredNews, newsCategories, type NewsCategory } from "@/lib/news";
 
 export const metadata: Metadata = {
@@ -13,7 +13,10 @@ export const dynamic = "force-dynamic";
 export default async function FeedPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
   const params = await searchParams;
   const category = newsCategories.includes(params.category as NewsCategory) ? (params.category as NewsCategory) : "전체";
-  const news = await getStoredNews(category).catch(() => []);
+  const [indicators, news] = await Promise.all([
+    getIndicators(),
+    getStoredNews(category).catch(() => []),
+  ]);
 
   return (
     <main className="main">
@@ -25,14 +28,14 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
       <section className="section">
         <div className="section-head section-title-row">
           <h2>경제지표</h2>
-          <span className="badge">바로가기</span>
+          <span className="badge">FRED</span>
         </div>
         <div className="feed-indicator-grid">
-          {INDICATOR_CONFIGS.slice(0, 6).map((indicator) => (
+          {indicators.slice(0, 6).map((indicator) => (
             <Link className="feed-indicator-card" href={`/indicators/${indicator.slug}`} key={indicator.slug}>
               <span>{indicator.name}</span>
-              <strong>{`FRED:${indicator.fredSeries}`}</strong>
-              <small>{indicator.description}</small>
+              <strong>{indicator.latest}</strong>
+              <small>이전 {indicator.previous} · {indicator.releaseDate}</small>
             </Link>
           ))}
         </div>

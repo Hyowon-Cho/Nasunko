@@ -93,6 +93,7 @@ async function fetchFredSeries(seriesId: string): Promise<FredPoint[]> {
   try {
     const res = await fetch(`https://fred.stlouisfed.org/graph/fredgraph.csv?id=${seriesId}`, {
       next: { revalidate: 60 * 60 },
+      signal: AbortSignal.timeout(2500),
     });
 
     if (!res.ok) return [];
