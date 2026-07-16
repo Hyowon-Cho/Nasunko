@@ -6,7 +6,7 @@ type TradingViewChartProps = {
   symbol?: string;
 };
 
-export function TradingViewChart({ symbol = "NASDAQ:IXIC" }: TradingViewChartProps) {
+export function TradingViewChart({ symbol = "NASDAQ:QQQ" }: TradingViewChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loaded, setLoaded] = useState(false);
 
@@ -45,9 +45,9 @@ export function TradingViewChart({ symbol = "NASDAQ:IXIC" }: TradingViewChartPro
   return (
     <section className="card chart-card">
       <div className="section-head">
-        <h2>나스닥 종합지수</h2>
+        <h2>나스닥 100 · QQQ</h2>
       </div>
-      <p className="chart-note">종목 검색과 시간 단위 변경은 차트 상단에서 할 수 있습니다.</p>
+      <p className="chart-note">나스닥 100을 추종하는 QQQ 차트입니다. 종목과 시간 단위는 차트 상단에서 바꿀 수 있습니다.</p>
       <div className="tradingview-shell">
         {!loaded && (
           <div className="chart-fallback">

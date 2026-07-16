@@ -30,7 +30,7 @@ export default async function NasdaqPage() {
       </section>
 
       <div className="section">
-        <TradingViewChart symbol="NASDAQ:IXIC" />
+        <TradingViewChart symbol="NASDAQ:QQQ" />
       </div>
 
       <section className="section">
