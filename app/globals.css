@@ -2217,3 +2217,174 @@ th {
     font-size: 25px;
   }
 }
+
+.analytics-main {
+  padding-top: 96px;
+}
+
+.analytics-hero .lounge-kicker {
+  margin-bottom: 10px;
+}
+
+.analytics-section,
+.analytics-panel {
+  min-width: 0;
+}
+
+.analytics-metric-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.analytics-metric-grid.four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.analytics-metric-grid.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.analytics-metric-grid.compact {
+  margin-top: 12px;
+}
+
+.analytics-metric-card {
+  min-width: 0;
+  min-height: 118px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01)), var(--panel);
+}
+
+.analytics-metric-card span,
+.analytics-metric-card small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.analytics-metric-card strong {
+  display: block;
+  margin-top: 12px;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 28px;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.analytics-metric-card small {
+  margin-top: 10px;
+  color: var(--soft);
+  font-weight: 700;
+}
+
+.analytics-metric-card.up strong {
+  color: var(--up);
+}
+
+.analytics-metric-card.down strong {
+  color: var(--down);
+}
+
+.analytics-metric-card.flat strong {
+  color: var(--flat);
+}
+
+.analytics-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+}
+
+.analytics-panel {
+  min-height: 260px;
+}
+
+.analytics-rank-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.analytics-rank-row {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.analytics-rank-row span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(46, 123, 255, 0.14);
+  color: #8db5ff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.analytics-rank-row strong {
+  overflow: hidden;
+  color: var(--text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.analytics-rank-row em {
+  color: var(--soft);
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: right;
+}
+
+.risk-panel .analytics-rank-row span {
+  background: rgba(36, 135, 255, 0.14);
+  color: var(--down);
+}
+
+.risk-list {
+  margin-top: 12px;
+}
+
+@media (max-width: 900px) {
+  .analytics-metric-grid.four,
+  .analytics-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .analytics-metric-grid.two {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-metric-card {
+    min-height: 104px;
+  }
+
+  .analytics-metric-card strong {
+    font-size: 24px;
+  }
+
+  .analytics-rank-row {
+    grid-template-columns: 28px minmax(0, 1fr);
+  }
+
+  .analytics-rank-row em {
+    grid-column: 2;
+    text-align: left;
+  }
+}

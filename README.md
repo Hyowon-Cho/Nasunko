@@ -11,6 +11,7 @@ Nasunko organizes the service into four main data areas:
 ```txt
 Nasdaq       = Market data dashboard
 News         = Automated news collection pipeline
+Analytics    = BI and risk KPI dashboard
 Lounge       = Investor opinion data
 Trade Records = User profit / loss outcome data
 ```
@@ -44,6 +45,18 @@ The News page is backed by an automated RSS-based ETL pipeline.
 - Scrollable news timeline with category filters
 
 News is stored first, then served from PostgreSQL. The page does not depend on live RSS calls during normal user browsing.
+
+### Analytics
+
+The Analytics page turns stored data into BI-style KPI summaries.
+
+- News ETL status metrics
+- News category distribution
+- News sync quality metrics such as inserted and duplicate counts
+- Community activity metrics
+- Trade outcome metrics
+- Loss ratio and average loss magnitude
+- Symbol-level trade outcome rankings
 
 ### Lounge
 
@@ -143,6 +156,7 @@ app/
   api/admin/news-sync/  Admin news sync status endpoint
   nasdaq/               Nasdaq market dashboard
   feed/                 News page
+  analytics/            BI and risk analytics dashboard
   lounge/               Community lounge
   trades/               User trade records
   login/                Login page
@@ -297,7 +311,7 @@ https://nasunko.vercel.app
 
 Nasunko can be described as a financial BI and data pipeline project:
 
-> Nasunko collects market-related news, stores normalized records in PostgreSQL, provides a Nasdaq market dashboard, and captures investor discussion and trade outcome data for future analytics.
+> Nasunko collects market-related news, stores normalized records in PostgreSQL, provides a Nasdaq market dashboard, and aggregates investor discussion and trade outcome data into BI and risk KPIs.
 
 This makes the project relevant to data analyst, risk analyst, and junior data engineering roles because it includes data collection, transformation, deduplication, loading, persistence, monitoring, and dashboard presentation.
 
