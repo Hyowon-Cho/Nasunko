@@ -37,6 +37,7 @@ export async function ensureNewsTables() {
     fetched_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
   )`);
   await query(`CREATE INDEX IF NOT EXISTS news_articles_category_date_idx ON news_articles (category, published_at DESC)`);
+  await query(`CREATE INDEX IF NOT EXISTS news_articles_published_at_idx ON news_articles (published_at DESC)`);
   await query(`CREATE TABLE IF NOT EXISTS news_sync_runs (
     id BIGSERIAL PRIMARY KEY,
     status TEXT NOT NULL,
@@ -106,24 +107,43 @@ export async function syncNews(): Promise<NewsSyncSummary> {
     const sources = await fetchNewsSources();
     const articles = sources.flatMap((source) => source.articles.map((article) => ({ article, source })));
     let insertedCount = 0;
-    let eligibleCount = 0;
+    const insertRows: unknown[][] = [];
 
     for (const { article, source } of articles) {
       if (!article.url || !article.publishedAt) continue;
       const canonicalUrl = canonicalizeUrl(article.url);
       const fingerprint = titleFingerprint(article.title);
       if (!canonicalUrl || !fingerprint) continue;
-      eligibleCount += 1;
+      insertRows.push([
+        source.source,
+        source.sourceUrl,
+        canonicalUrl,
+        article.title,
+        fingerprint,
+        article.category,
+        article.publishedAt,
+      ]);
+    }
+
+    if (insertRows.length > 0) {
+      const values: unknown[] = [];
+      const placeholders = insertRows.map((row, rowIndex) => {
+        values.push(...row);
+        const base = rowIndex * 7;
+        return `($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4}, $${base + 5}, $${base + 6}, $${base + 7})`;
+      }).join(", ");
+
       const result = await query(
         `INSERT INTO news_articles
           (source, source_url, canonical_url, title, title_fingerprint, category, published_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         VALUES ${placeholders}
          ON CONFLICT DO NOTHING`,
-        [source.source, source.sourceUrl, canonicalUrl, article.title,
-          fingerprint, article.category, article.publishedAt],
+        values,
       );
-      insertedCount += result.rowCount ?? 0;
+      insertedCount = result.rowCount ?? 0;
     }
+
+    const eligibleCount = insertRows.length;
 
     const deleted = await query(`DELETE FROM news_articles WHERE published_at < NOW() - INTERVAL '30 days'`);
     const sourceErrors = sources.filter((source) => source.error);

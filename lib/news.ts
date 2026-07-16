@@ -77,7 +77,7 @@ async function fetchRssSource(source: { url: string; site: string }): Promise<Ne
   try {
     const res = await fetch(source.url, {
       next: { revalidate: 300 },
-      signal: AbortSignal.timeout(4000),
+      signal: AbortSignal.timeout(2500),
     });
     if (!res.ok) return [];
 
