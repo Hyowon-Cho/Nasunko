@@ -4,8 +4,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "나스닥 실시간 시세 나선코",
-  description: "나스닥 종합주가지수, 미국 빅테크, 반도체, 경제지표, 환율, 금리, 실시간 뉴스를 한 화면에서 확인하세요."
+  title: "나선코 — 나스닥 시세와 투자자 라운지",
+  description: "나스닥 시세와 미국 증시 뉴스, 투자 기록을 확인하는 커뮤니티입니다."
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

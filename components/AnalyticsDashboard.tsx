@@ -35,19 +35,19 @@ function formatNumber(value: number) {
 }
 
 function formatPercent(value: number | null, signed = false) {
-  if (value === null) return "N/A";
+  if (value === null) return "자료 없음";
   const prefix = signed && value > 0 ? "+" : "";
   return `${prefix}${value.toFixed(2)}%`;
 }
 
 function formatDuration(ms: number | null) {
-  if (ms === null) return "N/A";
+  if (ms === null) return "자료 없음";
   if (ms < 1000) return `${ms}ms`;
   return `${(ms / 1000).toFixed(2)}s`;
 }
 
 function formatDate(value: string | null) {
-  if (!value) return "N/A";
+  if (!value) return "자료 없음";
   return new Intl.DateTimeFormat("ko-KR", {
     month: "2-digit",
     day: "2-digit",
@@ -136,9 +136,9 @@ export function AnalyticsDashboard({ summary }: AnalyticsDashboardProps) {
   return (
     <main className="main analytics-main">
       <section className="hero analytics-hero">
-        <p className="lounge-kicker">Nasunko Analytics</p>
-        <h1 className="page-title">뉴스와 나스닥 시장 분석</h1>
-        <p className="page-subtitle">자동 수집 뉴스와 나스닥 주요 종목 데이터를 KPI, 추세, 해석 문장, 리스크 점수로 집계합니다.</p>
+        <p className="page-kicker">시장 요약</p>
+        <h1 className="page-title">오늘 시장은 어떤가요?</h1>
+        <p className="page-subtitle">수집된 뉴스와 관심 종목의 현재 움직임을 함께 봅니다.</p>
       </section>
 
       <section className="section analytics-control-bar">
@@ -167,7 +167,7 @@ export function AnalyticsDashboard({ summary }: AnalyticsDashboardProps) {
       <section className="section analytics-section">
         <div className="section-head section-title-row">
           <h2>핵심 요약</h2>
-          <span className="badge">BI View</span>
+          <span className="section-count">{periodLabel} 기준</span>
         </div>
         <div className="analytics-metric-grid four">
           <MetricCard label={`${periodLabel} 뉴스`} value={formatNumber(periodNewsTotal)} note={`일평균 ${formatNumber(periodAverage)}건`} />
@@ -179,7 +179,7 @@ export function AnalyticsDashboard({ summary }: AnalyticsDashboardProps) {
 
       <section className="section analytics-insight-card">
         <div>
-          <span className="badge">Insight</span>
+          <span className="page-kicker">한줄 요약</span>
           <h2>{summary.market.insight}</h2>
         </div>
         <ul>
@@ -248,7 +248,7 @@ export function AnalyticsDashboard({ summary }: AnalyticsDashboardProps) {
             </ResponsiveContainer>
           </div>
           <div className="analytics-risk-box">
-            <MetricCard label="하락 종목 비율" value={formatPercent(summary.market.riskOffScore)} note={`${summary.market.watched.downCount}/${summary.market.watched.count} watched`} tone={riskTone(summary.market.riskOffScore)} />
+            <MetricCard label="하락 종목 비율" value={formatPercent(summary.market.riskOffScore)} note={`관심 종목 ${summary.market.watched.count}개 중 ${summary.market.watched.downCount}개`} tone={riskTone(summary.market.riskOffScore)} />
             <MetricCard label="최근 동기화" value={syncStatus} note={`${formatDate(summary.news.latestSyncAt)} · ${formatDuration(summary.news.latestSyncDurationMs)}`} tone={syncStatus === "success" ? "flat" : "default"} />
           </div>
         </div>
@@ -257,41 +257,29 @@ export function AnalyticsDashboard({ summary }: AnalyticsDashboardProps) {
       <section className="section analytics-split three-panel">
         <article className="card card-inner analytics-panel">
           <div className="section-head section-title-row">
-            <h2>상승률 TOP 5</h2>
-            <span className="badge">Watched</span>
+            <h2>많이 오른 종목</h2>
+            <span className="section-count">상위 5개</span>
           </div>
           <MarketMoveList items={summary.market.topGainers} emptyText="시장 데이터를 불러오지 못했습니다." />
         </article>
 
         <article className="card card-inner analytics-panel risk-panel">
           <div className="section-head section-title-row">
-            <h2>하락률 TOP 5</h2>
-            <span className="badge">Risk</span>
+            <h2>많이 내린 종목</h2>
+            <span className="section-count">상위 5개</span>
           </div>
           <MarketMoveList items={summary.market.topLosers} emptyText="시장 데이터를 불러오지 못했습니다." />
         </article>
 
         <article className="card card-inner analytics-panel">
           <div className="section-head section-title-row">
-            <h2>변동성 TOP 5</h2>
-            <span className="badge">Abs %</span>
+            <h2>변동이 큰 종목</h2>
+            <span className="section-count">절대 등락률</span>
           </div>
           <MarketMoveList items={summary.market.mostVolatile} emptyText="시장 데이터를 불러오지 못했습니다." />
         </article>
       </section>
 
-      <section className="section analytics-section">
-        <div className="section-head section-title-row">
-          <h2>사용자 데이터 상태</h2>
-          <span className="badge">Future Dataset</span>
-        </div>
-        <div className="analytics-metric-grid four secondary">
-          <MetricCard label="라운지 글" value={formatNumber(summary.community.posts)} note="데이터 축적 후 의견 분석 예정" />
-          <MetricCard label="댓글" value={formatNumber(summary.community.comments)} note="커뮤니티 반응 데이터" />
-          <MetricCard label="매매기록" value={formatNumber(summary.trades.total)} note="수익/손절 결과 데이터" />
-          <MetricCard label="회원" value={formatNumber(summary.community.users)} note="사용자 기반" />
-        </div>
-      </section>
     </main>
   );
 }

@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
-import { randomInt } from "crypto";
 import { TickerTape } from "@/components/TickerTape";
 import { TradingViewChart } from "@/components/TradingViewChart";
 import { TradingViewRelatedMarketCard } from "@/components/TradingViewRelatedMarketCard";
-import { getMarketQuotes, getTickerQuotes } from "@/lib/markets";
+import { getTickerQuotes } from "@/lib/markets";
 
 export const metadata: Metadata = {
   title: "나선코 나스닥 실시간 시세",
-  description: "나스닥 종합주가지수, 나스닥100, 미국 빅테크, 반도체, 경제지표, 환율, 금리, 실시간 뉴스를 한 화면에서 확인하세요."
+  description: "나스닥 종합지수와 환율, 원자재 등 미국 증시 관련 시장을 확인하세요."
 };
 
 export const dynamic = "force-dynamic";
@@ -20,29 +19,24 @@ const relatedMarkets = [
 ];
 
 export default async function NasdaqPage() {
-  const [tickerQuotes, nasdaqStocks] = await Promise.all([
-    getTickerQuotes(),
-    getMarketQuotes("big-tech")
-  ]);
-  const randomStock = nasdaqStocks[randomInt(Math.max(nasdaqStocks.length, 1))] ?? nasdaqStocks[0];
-  const chartSymbol = `NASDAQ:${randomStock?.symbol ?? "NVDA"}`;
+  const tickerQuotes = await getTickerQuotes();
 
   return (
     <main className="main">
       <TickerTape quotes={tickerQuotes} />
       <section className="hero">
         <h1 className="page-title">나스닥 실시간 시세</h1>
-        <p className="page-subtitle">나스닥 차트, 등락, 거래량을 한 화면에서 빠르게 확인해요</p>
+        <p className="page-subtitle">나스닥 종합지수와 장에 영향을 주는 주요 시장을 모았습니다.</p>
       </section>
 
       <div className="section">
-        <TradingViewChart symbol={chartSymbol} />
+        <TradingViewChart symbol="NASDAQ:IXIC" />
       </div>
 
       <section className="section">
         <div className="section-head section-title-row">
           <h2>연관 시장</h2>
-          <span className="badge">트레이딩 뷰</span>
+          <span className="source-label">TradingView</span>
         </div>
         <div className="related-tv-grid">
           {relatedMarkets.map((market) => (

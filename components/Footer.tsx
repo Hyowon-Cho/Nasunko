@@ -5,7 +5,7 @@ export function Footer() {
     <footer className="footer">
       <div>
         <strong>나선코</strong>
-        <p> 왜 내 주식만 안 오르는 건데? 차트, 지표, 뉴스를 한 화면에서.</p>
+        <p>미국장 보는 사람들을 위한 시세와 이야기.</p>
       </div>
       <div className="footer-links">
         <Link href="/nasdaq">나스닥</Link>

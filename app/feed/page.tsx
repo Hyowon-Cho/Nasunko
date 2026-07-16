@@ -18,7 +18,7 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
     <main className="main">
       <section className="hero">
         <h1 className="page-title">뉴스</h1>
-        <p className="page-subtitle">나스닥, 빅테크, 반도체, 환율, 금리, 유가 뉴스를 한 화면에서 추적합니다.</p>
+        <p className="page-subtitle">미국 증시와 환율·금리 관련 기사를 시간순으로 정리합니다.</p>
       </section>
 
 
@@ -31,7 +31,7 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
       <section className="section">
         <div className="section-head section-title-row">
           <h2>뉴스</h2>
-          <span className="badge">최신 {news.length}개</span>
+          <span className="section-count">{news.length}건</span>
         </div>
         <div className="card timeline feed-news-scroll">
           {news.length === 0 ? (

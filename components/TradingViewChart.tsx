@@ -6,7 +6,7 @@ type TradingViewChartProps = {
   symbol?: string;
 };
 
-export function TradingViewChart({ symbol = "NASDAQ:NVDA" }: TradingViewChartProps) {
+export function TradingViewChart({ symbol = "NASDAQ:IXIC" }: TradingViewChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loaded, setLoaded] = useState(false);
 
@@ -45,14 +45,14 @@ export function TradingViewChart({ symbol = "NASDAQ:NVDA" }: TradingViewChartPro
   return (
     <section className="card chart-card">
       <div className="section-head">
-        <h2>너만의 나스닥 차트</h2>
+        <h2>나스닥 종합지수</h2>
       </div>
-      <p className="chart-note">너만의 나스닥 차트를 확인 할 수 있어요</p>
+      <p className="chart-note">종목 검색과 시간 단위 변경은 차트 상단에서 할 수 있습니다.</p>
       <div className="tradingview-shell">
         {!loaded && (
           <div className="chart-fallback">
             <strong>차트 불러오는 중…</strong>
-            <span>TradingView가 차단되거나 심볼 제공이 제한되어도 이 영역의 높이는 유지됩니다.</span>
+            <span>잠시만 기다려 주세요.</span>
           </div>
         )}
         <div ref={containerRef} className="tradingview-widget-container__widget" />
